@@ -1,0 +1,25 @@
+{
+  "name": "@chatroom/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@better-auth/expo": "catalog:",
+    "@chatroom/db": "workspace:*",
+    "@chatroom/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@chatroom/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

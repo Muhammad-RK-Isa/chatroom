@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "scheme": "chatroom",
+    "userInterfaceStyle": "automatic",
+    "orientation": "default",
+    "web": {
+      "bundler": "metro"
+    },
+    "name": "chatroom",
+    "slug": "chatroom",
+    "plugins": ["expo-font"],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
