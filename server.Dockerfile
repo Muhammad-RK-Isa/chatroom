@@ -6,7 +6,7 @@ COPY . .
 RUN bun add -g turbo
 RUN turbo prune --scope=@chatroom/server --docker
 
-FROM prune AS build
+FROM base AS build
 WORKDIR /app
 COPY --from=prune /app/out/json/ .
 RUN bun install --frozen-lockfile
