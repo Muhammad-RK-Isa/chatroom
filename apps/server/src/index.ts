@@ -13,11 +13,33 @@ import { logger } from "hono/logger";
 
 export const app = new Hono();
 
+const resolveCorsOrigin = (
+	origin: string | undefined,
+	requestUrl: string
+): string => {
+	const requestOrigin = new URL(requestUrl).origin;
+	const apiOrigin = new URL(env.BETTER_AUTH_URL).origin;
+
+	if (!origin) {
+		return requestOrigin;
+	}
+
+	if (
+		origin === env.CORS_ORIGIN ||
+		origin === requestOrigin ||
+		origin === apiOrigin
+	) {
+		return origin;
+	}
+
+	return env.CORS_ORIGIN;
+};
+
 app.use(logger());
 app.use(
 	"/*",
 	cors({
-		origin: (origin) => origin || env.CORS_ORIGIN,
+		origin: (origin, c) => resolveCorsOrigin(origin, c.req.url),
 		allowMethods: ["GET", "POST", "OPTIONS"],
 		allowHeaders: ["Content-Type", "Authorization"],
 		credentials: true,
@@ -85,6 +107,6 @@ if (env.NODE_ENV !== "test") {
 	// biome-ignore lint/correctness/noUndeclaredVariables: Bun is a runtime global
 	Bun.serve({
 		fetch: app.fetch,
-		port: env.PORT,
+		port: env.NODE_ENV === "development" ? 8000 : undefined,
 	});
 }

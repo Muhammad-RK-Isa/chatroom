@@ -7,7 +7,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "serve": "vite preview",
-    "start": "vite",
+    "start": "vite --host",
     "check-types": "tsc --noEmit",
     "ui:add": "bun shadcn add"
   },
