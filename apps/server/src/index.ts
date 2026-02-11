@@ -30,6 +30,12 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 	plugins: [
 		new OpenAPIReferencePlugin({
 			schemaConverters: [new ZodToJsonSchemaConverter()],
+			specGenerateOptions: {
+				info: {
+					title: "Chatroom API Reference",
+					version: "1.0.0",
+				},
+			},
 		}),
 	],
 	interceptors: [
@@ -60,7 +66,7 @@ app.use("/*", async (c, next) => {
 	}
 
 	const apiResult = await apiHandler.handle(c.req.raw, {
-		prefix: "/api-reference",
+		prefix: "/reference",
 		context,
 	});
 

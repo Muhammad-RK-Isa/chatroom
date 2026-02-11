@@ -9,38 +9,76 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthLayoutRouteImport } from './routes/_auth-layout'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthLayoutSignInRouteImport } from './routes/_auth-layout/sign-in'
+import { Route as AuthLayoutAuthenticationErrorRouteImport } from './routes/_auth-layout/authentication-error'
 
+const AuthLayoutRoute = AuthLayoutRouteImport.update({
+  id: '/_auth-layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthLayoutSignInRoute = AuthLayoutSignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => AuthLayoutRoute,
+} as any)
+const AuthLayoutAuthenticationErrorRoute =
+  AuthLayoutAuthenticationErrorRouteImport.update({
+    id: '/authentication-error',
+    path: '/authentication-error',
+    getParentRoute: () => AuthLayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/authentication-error': typeof AuthLayoutAuthenticationErrorRoute
+  '/sign-in': typeof AuthLayoutSignInRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/authentication-error': typeof AuthLayoutAuthenticationErrorRoute
+  '/sign-in': typeof AuthLayoutSignInRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_auth-layout': typeof AuthLayoutRouteWithChildren
+  '/_auth-layout/authentication-error': typeof AuthLayoutAuthenticationErrorRoute
+  '/_auth-layout/sign-in': typeof AuthLayoutSignInRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/authentication-error' | '/sign-in'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/authentication-error' | '/sign-in'
+  id:
+    | '__root__'
+    | '/'
+    | '/_auth-layout'
+    | '/_auth-layout/authentication-error'
+    | '/_auth-layout/sign-in'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthLayoutRoute: typeof AuthLayoutRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_auth-layout': {
+      id: '/_auth-layout'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +86,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth-layout/sign-in': {
+      id: '/_auth-layout/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof AuthLayoutSignInRouteImport
+      parentRoute: typeof AuthLayoutRoute
+    }
+    '/_auth-layout/authentication-error': {
+      id: '/_auth-layout/authentication-error'
+      path: '/authentication-error'
+      fullPath: '/authentication-error'
+      preLoaderRoute: typeof AuthLayoutAuthenticationErrorRouteImport
+      parentRoute: typeof AuthLayoutRoute
+    }
   }
 }
 
+interface AuthLayoutRouteChildren {
+  AuthLayoutAuthenticationErrorRoute: typeof AuthLayoutAuthenticationErrorRoute
+  AuthLayoutSignInRoute: typeof AuthLayoutSignInRoute
+}
+
+const AuthLayoutRouteChildren: AuthLayoutRouteChildren = {
+  AuthLayoutAuthenticationErrorRoute: AuthLayoutAuthenticationErrorRoute,
+  AuthLayoutSignInRoute: AuthLayoutSignInRoute,
+}
+
+const AuthLayoutRouteWithChildren = AuthLayoutRoute._addFileChildren(
+  AuthLayoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthLayoutRoute: AuthLayoutRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

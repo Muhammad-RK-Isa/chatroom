@@ -18,7 +18,8 @@
       "persistent": true
     },
     "db:push": {
-      "cache": false
+      "cache": false,
+      "interactive": true
     },
     "db:generate": {
       "cache": false
