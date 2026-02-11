@@ -75,7 +75,7 @@ app.get("/", (c) => {
 	return c.text("OK");
 });
 
-if (process.env.NODE_ENV !== "test") {
+if (env.NODE_ENV !== "test") {
 	// biome-ignore lint/correctness/noUndeclaredVariables: Bun is a runtime global
 	Bun.serve({
 		fetch: app.fetch,
