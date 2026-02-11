@@ -8,24 +8,14 @@
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "**",
-      "!**/.next",
       "!**/dist",
       "!**/.turbo",
       "!**/dev-dist",
       "!**/.zed",
-      "!**/.vscode",
       "!**/routeTree.gen.ts",
-      "!**/src-tauri",
-      "!**/.nuxt",
       "!bts.jsonc",
       "!**/.expo",
-      "!**/.wrangler",
-      "!**/.alchemy",
-      "!**/.svelte-kit",
-      "!**/wrangler.jsonc",
-      "!**/.source",
-      "!**/convex/_generated"
+      "!**/.source"
     ]
   },
   "formatter": {
@@ -65,7 +55,11 @@
         "noUnusedTemplateLiteral": "error",
         "useNumberNamespace": "error",
         "noInferrableTypes": "error",
-        "noUselessElse": "error"
+        "noUselessElse": "error",
+        "noNestedTernary": "off"
+      },
+      "performance": {
+        "noBarrelFile": "off"
       }
     }
   },

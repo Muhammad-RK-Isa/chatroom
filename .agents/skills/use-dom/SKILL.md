@@ -104,7 +104,7 @@ Pass async functions as props to expose native functionality to the DOM componen
 ```tsx
 // app/index.tsx (native)
 import { Alert } from "react-native";
-import DOMComponent from "@/components/dom-component";
+import DOMComponent from "~/components/dom-component";
 
 export default function Screen() {
   return (
@@ -201,7 +201,7 @@ CSS imports must be in the DOM component file since they run in isolated context
 // components/styled-component.tsx
 "use dom";
 
-import "@/styles.css"; // CSS file in same directory
+import "~/styles.css"; // CSS file in same directory
 
 export default function StyledComponent({ dom }: { dom: import("expo/dom").DOMProps }) {
   return (
@@ -274,7 +274,7 @@ These hooks don't work directly in DOM components because they need synchronous 
 ```tsx
 // app/[id].tsx (native)
 import { useLocalSearchParams, usePathname } from "expo-router";
-import DOMComponent from "@/components/dom-component";
+import DOMComponent from "~/components/dom-component";
 
 export default function Screen() {
   const { id } = useLocalSearchParams();
@@ -340,8 +340,8 @@ Import and use DOM components like regular components:
 ```tsx
 // app/index.tsx
 import { View, Text } from "react-native";
-import WebChart from "@/components/web-chart";
-import CodeBlock from "@/components/code-block";
+import WebChart from "~/components/web-chart";
+import CodeBlock from "~/components/code-block";
 
 export default function HomeScreen() {
   return (

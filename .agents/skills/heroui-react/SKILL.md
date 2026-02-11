@@ -73,23 +73,23 @@ import { Card } from "@heroui/react@beta";
 
 ```bash
 # List all available components
-node scripts/list_components.mjs
+node scripts/list-components.mjs
 
 # Get component documentation (MDX)
-node scripts/get_component_docs.mjs Button
-node scripts/get_component_docs.mjs Button Card TextField
+node scripts/get-component-docs.mjs Button
+node scripts/get-component-docs.mjs Button Card TextField
 
 # Get component source code
-node scripts/get_source.mjs Button
+node scripts/get-source.mjs Button
 
 # Get component CSS styles (BEM classes)
-node scripts/get_styles.mjs Button
+node scripts/get-styles.mjs Button
 
 # Get theme variables
-node scripts/get_theme.mjs
+node scripts/get-theme.mjs
 
 # Get non-component docs (guides, releases)
-node scripts/get_docs.mjs /docs/react/getting-started/theming
+node scripts/get-docs.mjs /docs/react/getting-started/theming
 ```
 
 ### Direct MDX URLs
@@ -232,7 +232,7 @@ HeroUI v3 uses CSS variables with `oklch` color space:
 **Get current theme variables:**
 
 ```bash
-node scripts/get_theme.mjs
+node scripts/get-theme.mjs
 ```
 
 **Color naming:**

@@ -2706,9 +2706,9 @@ function Profile() {
 **Correct: imports from design system**
 
 ```tsx
-import { View } from "@/components/view";
-import { Text } from "@/components/text";
-import { Button } from "@/components/button";
+import { View } from "~/components/view";
+import { Text } from "~/components/text";
+import { Button } from "~/components/button";
 
 function Profile() {
   return (

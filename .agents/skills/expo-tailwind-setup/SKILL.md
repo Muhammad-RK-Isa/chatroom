@@ -283,7 +283,7 @@ export const Animated = {
 Import CSS-wrapped components from your tw directory:
 
 ```tsx
-import { View, Text, ScrollView, Image } from "@/tw";
+import { View, Text, ScrollView, Image } from "~/tw";
 
 export default function MyScreen() {
   return (
@@ -416,7 +416,7 @@ Then use in components:
 Use the `useCSSVariable` hook:
 
 ```tsx
-import { useCSSVariable } from "@/tw";
+import { useCSSVariable } from "~/tw";
 
 function MyComponent() {
   const blue = useCSSVariable("--sf-blue");

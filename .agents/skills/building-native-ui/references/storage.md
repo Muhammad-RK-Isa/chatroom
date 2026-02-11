@@ -59,7 +59,7 @@ export const storage = {
 ```tsx
 // hooks/use-storage.ts
 import { useSyncExternalStore } from "react";
-import { storage } from "@/utils/storage";
+import { storage } from "~/utils/storage";
 
 export function useStorage<T>(key: string, defaultValue: T): [T, (value: T) => void] {
   const value = useSyncExternalStore(

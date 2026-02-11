@@ -125,7 +125,7 @@ import type { ViewProps } from "react-native";
 import { PixelRatio } from "react-native";
 import { Canvas, type CanvasRef } from "react-native-wgpu";
 
-import { makeWebGPURenderer, ReactNativeCanvas } from "@/lib/make-webgpu-renderer";
+import { makeWebGPURenderer, ReactNativeCanvas } from "~/lib/make-webgpu-renderer";
 
 // Extend THREE namespace for R3F - add all components you use
 extend({
@@ -216,7 +216,7 @@ import * as THREE from "three/webgpu";
 import { View } from "react-native";
 import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { FiberCanvas } from "@/lib/fiber-canvas";
+import { FiberCanvas } from "~/lib/fiber-canvas";
 
 function RotatingBox() {
   const ref = useRef<THREE.Mesh>(null!);
@@ -270,7 +270,7 @@ Use React.lazy to code-split Three.js for better loading:
 import React, { Suspense } from "react";
 import { ActivityIndicator, View } from "react-native";
 
-const Scene = React.lazy(() => import("@/components/scene"));
+const Scene = React.lazy(() => import("~/components/scene"));
 
 export default function Page() {
   return (
@@ -402,8 +402,8 @@ See the full `orbit-controls.tsx` implementation in the lib files. Usage:
 
 ```tsx
 import { View } from "react-native";
-import { FiberCanvas } from "@/lib/fiber-canvas";
-import useControls from "@/lib/orbit-controls";
+import { FiberCanvas } from "~/lib/fiber-canvas";
+import useControls from "~/lib/orbit-controls";
 
 function Scene() {
   const [OrbitControls, events] = useControls();
@@ -529,7 +529,7 @@ import * as THREE from "three/webgpu";
 import { View, Text, Pressable } from "react-native";
 import { useRef, useState, useCallback } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { FiberCanvas } from "@/lib/fiber-canvas";
+import { FiberCanvas } from "~/lib/fiber-canvas";
 
 function Player({ position }: { position: THREE.Vector3 }) {
   const ref = useRef<THREE.Mesh>(null!);

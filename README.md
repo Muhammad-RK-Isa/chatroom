@@ -1,6 +1,7 @@
 # chatroom
+## A cross-platform chatting application by [Muhammad Isa](https://github.com/muhammad-rk-isa)
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Router, Hono, ORPC, and more.
+This project was scaffolded with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Router, Hono, ORPC, and more.
 
 ## Features
 

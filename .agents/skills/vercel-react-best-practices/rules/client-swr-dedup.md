@@ -35,7 +35,7 @@ function UserList() {
 **For immutable data:**
 
 ```tsx
-import { useImmutableSWR } from "@/lib/swr";
+import { useImmutableSWR } from "~/lib/swr";
 
 function StaticContent() {
   const { data } = useImmutableSWR("/api/config", fetcher);
