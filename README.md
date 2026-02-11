@@ -1,13 +1,13 @@
 ```
-  ██████╗██╗  ██╗ █████╗ ████████╗██████╗  ██████╗  ██████╗ ███╗   ███╗
- ██╔════╝██║  ██║██╔══██╗╚══██╔══╝██╔══██╗██╔═══██╗██╔═══██╗████╗ ████║
- ██║     ███████║███████║   ██║   ██████╔╝██║   ██║██║   ██║██╔████╔██║
- ██║     ██╔══██║██╔══██║   ██║   ██╔══██╗██║   ██║██║   ██║██║╚██╔╝██║
- ╚██████╗██║  ██║██║  ██║   ██║   ██║  ██║╚██████╔╝╚██████╔╝██║ ╚═╝ ██║
-  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝     ╚═╝
+                    ██████╗██╗  ██╗ █████╗ ████████╗██████╗  ██████╗  ██████╗ ███╗   ███╗
+                   ██╔════╝██║  ██║██╔══██╗╚══██╔══╝██╔══██╗██╔═══██╗██╔═══██╗████╗ ████║
+                   ██║     ███████║███████║   ██║   ██████╔╝██║   ██║██║   ██║██╔████╔██║
+                   ██║     ██╔══██║██╔══██║   ██║   ██╔══██╗██║   ██║██║   ██║██║╚██╔╝██║
+                   ╚██████╗██║  ██║██║  ██║   ██║   ██║  ██║╚██████╔╝╚██████╔╝██║ ╚═╝ ██║
+                    ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝     ╚═╝
 ```
 
-## A cross-platform chatting application by [Muhammad Isa](https://github.com/muhammad-rk-isa)
+## A cross-platform chat app developed with ❤ by [Muhammad Isa](https://github.com/muhammad-rk-isa)
 
 ## Features
 
@@ -90,6 +90,7 @@ chatroom/
 - `bun run db:migrate`: Run database migrations
 - `bun run db:studio`: Open database studio UI
 - `bun run check`: Run Biome formatting and linting
+- `bun run test`: Run tests. More information can be found in [TESTING.md](TESTING.md).
 
 ## Testing
 
