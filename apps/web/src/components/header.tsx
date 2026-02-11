@@ -11,9 +11,6 @@ export default function Header() {
 					</Link>
 				</nav>
 				<div className="flex items-center gap-2">
-					<Link className="font-medium" to="/sign-in">
-						Sign In
-					</Link>
 					<ModeToggle />
 				</div>
 			</div>

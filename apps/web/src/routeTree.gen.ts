@@ -9,19 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthedLayoutRouteImport } from './routes/_authed-layout'
 import { Route as AuthLayoutRouteImport } from './routes/_auth-layout'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthedLayoutIndexRouteImport } from './routes/_authed-layout/index'
+import { Route as AuthedLayoutSettingsRouteImport } from './routes/_authed-layout/settings'
 import { Route as AuthLayoutSignInRouteImport } from './routes/_auth-layout/sign-in'
 import { Route as AuthLayoutAuthenticationErrorRouteImport } from './routes/_auth-layout/authentication-error'
+import { Route as AuthedLayoutChatsIdRouteImport } from './routes/_authed-layout/chats/$id'
 
+const AuthedLayoutRoute = AuthedLayoutRouteImport.update({
+  id: '/_authed-layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthLayoutRoute = AuthLayoutRouteImport.update({
   id: '/_auth-layout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthedLayoutIndexRoute = AuthedLayoutIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthedLayoutRoute,
+} as any)
+const AuthedLayoutSettingsRoute = AuthedLayoutSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthedLayoutRoute,
 } as any)
 const AuthLayoutSignInRoute = AuthLayoutSignInRouteImport.update({
   id: '/sign-in',
@@ -34,44 +46,71 @@ const AuthLayoutAuthenticationErrorRoute =
     path: '/authentication-error',
     getParentRoute: () => AuthLayoutRoute,
   } as any)
+const AuthedLayoutChatsIdRoute = AuthedLayoutChatsIdRouteImport.update({
+  id: '/chats/$id',
+  path: '/chats/$id',
+  getParentRoute: () => AuthedLayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthedLayoutIndexRoute
   '/authentication-error': typeof AuthLayoutAuthenticationErrorRoute
   '/sign-in': typeof AuthLayoutSignInRoute
+  '/settings': typeof AuthedLayoutSettingsRoute
+  '/chats/$id': typeof AuthedLayoutChatsIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof AuthedLayoutIndexRoute
   '/authentication-error': typeof AuthLayoutAuthenticationErrorRoute
   '/sign-in': typeof AuthLayoutSignInRoute
+  '/settings': typeof AuthedLayoutSettingsRoute
+  '/chats/$id': typeof AuthedLayoutChatsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_auth-layout': typeof AuthLayoutRouteWithChildren
+  '/_authed-layout': typeof AuthedLayoutRouteWithChildren
   '/_auth-layout/authentication-error': typeof AuthLayoutAuthenticationErrorRoute
   '/_auth-layout/sign-in': typeof AuthLayoutSignInRoute
+  '/_authed-layout/settings': typeof AuthedLayoutSettingsRoute
+  '/_authed-layout/': typeof AuthedLayoutIndexRoute
+  '/_authed-layout/chats/$id': typeof AuthedLayoutChatsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/authentication-error' | '/sign-in'
+  fullPaths:
+    | '/'
+    | '/authentication-error'
+    | '/sign-in'
+    | '/settings'
+    | '/chats/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/authentication-error' | '/sign-in'
+  to: '/' | '/authentication-error' | '/sign-in' | '/settings' | '/chats/$id'
   id:
     | '__root__'
-    | '/'
     | '/_auth-layout'
+    | '/_authed-layout'
     | '/_auth-layout/authentication-error'
     | '/_auth-layout/sign-in'
+    | '/_authed-layout/settings'
+    | '/_authed-layout/'
+    | '/_authed-layout/chats/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthLayoutRoute: typeof AuthLayoutRouteWithChildren
+  AuthedLayoutRoute: typeof AuthedLayoutRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_authed-layout': {
+      id: '/_authed-layout'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthedLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_auth-layout': {
       id: '/_auth-layout'
       path: ''
@@ -79,12 +118,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_authed-layout/': {
+      id: '/_authed-layout/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthedLayoutIndexRouteImport
+      parentRoute: typeof AuthedLayoutRoute
+    }
+    '/_authed-layout/settings': {
+      id: '/_authed-layout/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthedLayoutSettingsRouteImport
+      parentRoute: typeof AuthedLayoutRoute
     }
     '/_auth-layout/sign-in': {
       id: '/_auth-layout/sign-in'
@@ -99,6 +145,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/authentication-error'
       preLoaderRoute: typeof AuthLayoutAuthenticationErrorRouteImport
       parentRoute: typeof AuthLayoutRoute
+    }
+    '/_authed-layout/chats/$id': {
+      id: '/_authed-layout/chats/$id'
+      path: '/chats/$id'
+      fullPath: '/chats/$id'
+      preLoaderRoute: typeof AuthedLayoutChatsIdRouteImport
+      parentRoute: typeof AuthedLayoutRoute
     }
   }
 }
@@ -117,9 +170,25 @@ const AuthLayoutRouteWithChildren = AuthLayoutRoute._addFileChildren(
   AuthLayoutRouteChildren,
 )
 
+interface AuthedLayoutRouteChildren {
+  AuthedLayoutSettingsRoute: typeof AuthedLayoutSettingsRoute
+  AuthedLayoutIndexRoute: typeof AuthedLayoutIndexRoute
+  AuthedLayoutChatsIdRoute: typeof AuthedLayoutChatsIdRoute
+}
+
+const AuthedLayoutRouteChildren: AuthedLayoutRouteChildren = {
+  AuthedLayoutSettingsRoute: AuthedLayoutSettingsRoute,
+  AuthedLayoutIndexRoute: AuthedLayoutIndexRoute,
+  AuthedLayoutChatsIdRoute: AuthedLayoutChatsIdRoute,
+}
+
+const AuthedLayoutRouteWithChildren = AuthedLayoutRoute._addFileChildren(
+  AuthedLayoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthLayoutRoute: AuthLayoutRouteWithChildren,
+  AuthedLayoutRoute: AuthedLayoutRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

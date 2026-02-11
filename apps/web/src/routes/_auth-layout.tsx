@@ -1,13 +1,23 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { authClient } from "~/lib/auth-client";
 import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/_auth-layout")({
+	beforeLoad: async () => {
+		const isAuthed = await authClient
+			.getSession()
+			.then(({ data }) => !!data?.session);
+		if (isAuthed) {
+			throw redirect({ to: "/" });
+		}
+		return;
+	},
 	component: RouteComponent,
 });
 
 function RouteComponent() {
 	return (
-		<div className="relative flex h-200 w-full items-center justify-center bg-background">
+		<div className="relative flex w-full items-center justify-center bg-background">
 			<div
 				className={cn(
 					"absolute inset-0",
