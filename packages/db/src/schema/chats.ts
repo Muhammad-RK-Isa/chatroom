@@ -6,5 +6,6 @@ export const chats = pgTable("chats", {
 	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => generateID("chat")),
+	title: text("title"),
 	...lifeCycleDates,
 });
