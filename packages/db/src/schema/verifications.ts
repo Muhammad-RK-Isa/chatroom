@@ -1,17 +1,17 @@
 import { index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
+import { generateID, lifeCycleDates } from "../lib/utils";
+
 export const verifications = pgTable(
 	"verifications",
 	{
-		id: text("id").primaryKey(),
+		id: text("id")
+			.primaryKey()
+			.$defaultFn(() => generateID("verif")),
 		identifier: text("identifier").notNull(),
 		value: text("value").notNull(),
 		expiresAt: timestamp("expires_at").notNull(),
-		createdAt: timestamp("created_at").defaultNow().notNull(),
-		updatedAt: timestamp("updated_at")
-			.defaultNow()
-			.$onUpdate(() => /* @__PURE__ */ new Date())
-			.notNull(),
+		...lifeCycleDates,
 	},
 	(table) => [index("verifications_identifier_idx").on(table.identifier)]
 );
