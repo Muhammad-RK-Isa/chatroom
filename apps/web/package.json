@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@chatroom/config": "workspace:*",
+    "@types/bun": "catalog:",
     "@tanstack/react-query-devtools": "^5.91.1",
     "@tanstack/react-router-devtools": "^1.141.1",
     "@tanstack/router-plugin": "^1.141.1",

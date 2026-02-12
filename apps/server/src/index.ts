@@ -82,7 +82,6 @@ app.get("/", (c) => {
 });
 
 if (env.NODE_ENV !== "test") {
-	// biome-ignore lint/correctness/noUndeclaredVariables: Bun is a runtime global
 	Bun.serve({
 		fetch: app.fetch,
 		port: env.NODE_ENV === "development" ? 8000 : undefined,
