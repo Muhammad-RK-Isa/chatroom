@@ -14,4 +14,15 @@ export default defineConfig({
 	server: {
 		port: 3000,
 	},
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					react: ["react", "react-dom"],
+					router: ["@tanstack/react-router"],
+					query: ["@tanstack/react-query"],
+				},
+			},
+		},
+	},
 });
