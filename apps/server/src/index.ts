@@ -36,6 +36,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 					version: "1.0.0",
 				},
 			},
+			docsPath: "/reference",
 		}),
 	],
 	interceptors: [
@@ -66,7 +67,7 @@ app.use("/*", async (c, next) => {
 	}
 
 	const apiResult = await apiHandler.handle(c.req.raw, {
-		prefix: "/reference",
+		prefix: "/api",
 		context,
 	});
 

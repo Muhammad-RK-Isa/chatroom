@@ -3,7 +3,7 @@ import type { RouterClient } from "@orpc/server";
 import { publicProcedure } from "../index";
 
 export const appRouter = {
-	healthCheck: publicProcedure.handler(() => {
+	healthCheck: publicProcedure.route({ method: "GET" }).handler(() => {
 		return "OK";
 	}),
 };
