@@ -1,0 +1,19 @@
+{
+  "name": "@chatroom/validators",
+  "version": "0.0.0",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  },
+  "private": true,
+  "scripts": {},
+  "type": "module",
+  "devDependencies": {
+    "@chatroom/config": "workspace:*"
+  },
+  "dependencies": {
+    "drizzle-zod": "^0.8.3",
+    "zod": "catalog:"
+  }
+}
