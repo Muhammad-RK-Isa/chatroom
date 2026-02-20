@@ -1,8 +1,9 @@
-import type { AppRouterClient } from "@chatroom/api/routers/index";
+import { type AppRouterClient, appRouter } from "@chatroom/api/routers/index";
 
 import { env } from "@chatroom/env/web";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
+import { inferRPCMethodFromRouter } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ export const queryClient = new QueryClient({
 
 export const link = new RPCLink({
 	url: `${env.VITE_SERVER_URL}/rpc`,
+	method: inferRPCMethodFromRouter(appRouter),
 	fetch(url, options) {
 		return fetch(url, {
 			...options,
