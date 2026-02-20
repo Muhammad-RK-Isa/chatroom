@@ -55,6 +55,41 @@ Write code that is **accessible, performant, type-safe, and maintainable**. Focu
   - Include keyboard event handlers alongside mouse events
   - Use semantic elements (`<button>`, `<nav>`, etc.) instead of divs with roles
 
+### Web UI Components
+
+- use `bun ui:add <component-name>` for adding any pre-built shadcn ui components, don't write them on your own
+
+### Database
+
+- Do not migrate or push database schema on your own, ask me to do this task
+- Always try to use drizzle-orm syntax for making queries, use btca for updated drizzle-orm docs
+- Use direct sql queries along with drizzle-orm if complex queries become limited by drizzle-orm
+
+### oRPC
+
+- All the logic of a procedure should be handled inside it's own file
+- Reusable functions should be written inside `packages/api/src/lib/utils.ts file`
+- Router files will only include the reference of the procedurs and no procedure must be written inside router file
+- A router called chat should have a folder called chat and the router should be inside chat/index.ts
+- Procedures of a router should be in the respective router folder and should be named like `send-message.ts`
+- The router file should look like 
+    ```ts
+      export const chatRouter = {
+        send: sendMessage,
+      }
+    ```
+- Always use ORPCError instance for returning errors
+- Always define output schema and, input schema (if there is any input field) 
+- Always define returned error types inside .errors() of a procedure
+- Middlewares should be kept inside `packages/api/src/middleware.ts` file
+- use btca for latest orpc docs, do not use training data
+
+### Validators/Schema
+
+- any reusable zod schema must be written inside the `@chatroom/validators` package
+- any schema infered type must be exported from the containing schema file and consumed across the repo
+- may use infered zod schema from drizzle-orm database schema for base schema (use drizzle-zod package for schema inferrence) 
+
 ### Error Handling & Debugging
 
 - Remove `console.log`, `debugger`, and `alert` statements from production code
