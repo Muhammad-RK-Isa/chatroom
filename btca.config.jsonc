@@ -30,6 +30,12 @@
       "name": "postgres",
       "url": "https://github.com/postgres/postgres",
       "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "better-auth",
+      "url": "https://github.com/better-auth/better-auth",
+      "branch": "main"
     }
   ],
   "model": "gpt-5.3-codex",

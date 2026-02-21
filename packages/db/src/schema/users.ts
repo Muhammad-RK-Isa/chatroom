@@ -7,12 +7,13 @@ export const users = pgTable(
 	{
 		id: text("id")
 			.primaryKey()
-			.$defaultFn(() => generateID("user")),
+			.$defaultFn(() => generateID("usr")),
 		name: text("name").notNull(),
+		username: text("username").notNull(),
 		email: text("email").notNull().unique(),
 		emailVerified: boolean("email_verified").default(false).notNull(),
 		image: text("image"),
 		...lifeCycleDates,
 	},
-	(t) => [uniqueIndex().on(t.email)]
+	(t) => [uniqueIndex().on(t.email), uniqueIndex().on(t.username)]
 );

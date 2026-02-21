@@ -13,10 +13,12 @@
     }
   },
   "scripts": {
-    "db:push": "drizzle-kit push",
-    "db:generate": "drizzle-kit generate",
-    "db:studio": "drizzle-kit studio",
-    "db:migrate": "drizzle-kit migrate"
+    "dev": "bun db:studio",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "db:push": "bunx --bun drizzle-kit push",
+    "db:generate": "bunx --bun drizzle-kit generate",
+    "db:studio": "bunx --bun drizzle-kit studio",
+    "db:migrate": "bunx --bun drizzle-kit migrate"
   },
   "dependencies": {
     "@chatroom/env": "workspace:*",
@@ -27,7 +29,9 @@
   },
   "devDependencies": {
     "@chatroom/config": "workspace:*",
+    "@types/bun": "catalog:",
     "@types/pg": "catalog:",
+    "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.8",
     "typescript": "catalog:"
   }

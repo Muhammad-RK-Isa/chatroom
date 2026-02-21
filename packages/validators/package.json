@@ -7,7 +7,9 @@
     }
   },
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
+  },
   "type": "module",
   "devDependencies": {
     "@chatroom/config": "workspace:*"
