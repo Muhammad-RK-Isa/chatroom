@@ -40,6 +40,7 @@
     "dev:server": "turbo -F server dev",
     "dev:web": "turbo -F web dev",
     "fix": "ultracite fix",
+    "lint:ast-grep": "ast-grep scan --config sgconfig.yml --error",
     "prepare": "husky",
     "sherif": "bx sherif",
     "sherif:fix": "bx sherif -f"

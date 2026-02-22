@@ -4,6 +4,9 @@
 pre-commit:
   parallel: true
   jobs:
+    - name: ast-grep
+      glob: "*.{js,ts,cjs,mjs,jsx,tsx}"
+      run: ast-grep scan --config sgconfig.yml --error {staged_files}
     - name: biome
       glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
       run: bun biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}

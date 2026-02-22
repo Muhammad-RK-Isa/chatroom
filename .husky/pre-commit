@@ -67,4 +67,9 @@ if [ "$STAGED_HASH" != "$NEW_STAGED_HASH" ]; then
   echo "✨ Files formatted by Ultracite"
 fi
 
+if [ -n "$STAGED_FILES" ]; then
+  # shellcheck disable=SC2086
+  ast-grep scan --config sgconfig.yml --error $STAGED_FILES
+fi
+
 exit $FORMAT_EXIT_CODE
