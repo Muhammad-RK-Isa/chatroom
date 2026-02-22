@@ -9,7 +9,9 @@
       "default": "./src/*.ts"
     }
   },
-  "scripts": {},
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
+  },
   "dependencies": {
     "@chatroom/auth": "workspace:*",
     "@chatroom/db": "workspace:*",
@@ -26,6 +28,6 @@
   "devDependencies": {
     "@chatroom/config": "workspace:*",
     "hono": "catalog:",
-    "typescript": "catalog:"
+    "@typescript/native-preview": "catalog:"
   }
 }

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://btca.dev/btca.schema.json",
+  "resources": [
+    {
+      "type": "git",
+      "name": "orpc",
+      "url": "https://github.com/middleapi/orpc",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "tanstack-router",
+      "url": "https://github.com/TanStack/router",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "bun",
+      "url": "https://github.com/oven-sh/bun",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "drizzle-orm",
+      "url": "https://github.com/drizzle-team/drizzle-orm",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "postgres",
+      "url": "https://github.com/postgres/postgres",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "better-auth",
+      "url": "https://github.com/better-auth/better-auth",
+      "branch": "main"
+    }
+  ],
+  "model": "gpt-5.3-codex",
+  "provider": "openai"
+}

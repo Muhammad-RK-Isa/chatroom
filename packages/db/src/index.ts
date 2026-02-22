@@ -1,5 +1,5 @@
 import { env } from "@chatroom/env/server";
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/bun-sql";
 
 // biome-ignore lint/performance/noNamespaceImport: drizzle requires the schema namespace object
 import * as schema from "./schema";

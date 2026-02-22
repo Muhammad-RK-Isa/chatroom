@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
+  },
   "exports": {
     "./server": "./src/server.ts",
     "./web": "./src/web.ts",
@@ -16,6 +19,6 @@
   "devDependencies": {
     "@chatroom/config": "workspace:*",
     "@types/bun": "catalog:",
-    "typescript": "catalog:"
+    "@typescript/native-preview": "catalog:"
   }
 }

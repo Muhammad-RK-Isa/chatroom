@@ -55,6 +55,41 @@ Write code that is **accessible, performant, type-safe, and maintainable**. Focu
   - Include keyboard event handlers alongside mouse events
   - Use semantic elements (`<button>`, `<nav>`, etc.) instead of divs with roles
 
+### Web UI Components
+
+- use `bun ui:add <component-name>` for adding any pre-built shadcn ui components, don't write them on your own
+
+### Database
+
+- Do not migrate or push database schema on your own, ask me to do this task
+- Always try to use drizzle-orm syntax for making queries, use btca for updated drizzle-orm docs
+- Use direct sql queries along with drizzle-orm if complex queries become limited by drizzle-orm
+
+### oRPC
+
+- All the logic of a procedure should be handled inside it's own file
+- Reusable functions should be written inside `packages/api/src/lib/utils.ts file`
+- Router files will only include the reference of the procedurs and no procedure must be written inside router file
+- A router called chat should have a folder called chat and the router should be inside chat/index.ts
+- Procedures of a router should be in the respective router folder and should be named like `send-message.ts`
+- The router file should look like 
+    ```ts
+      export const chatRouter = {
+        send: sendMessage,
+      }
+    ```
+- Always use ORPCError instance for returning errors
+- Always define output schema and, input schema (if there is any input field) 
+- Always define returned error types inside .errors() of a procedure
+- Middlewares should be kept inside `packages/api/src/middleware.ts` file
+- use btca for latest orpc docs, do not use training data
+
+### Validators/Schema
+
+- any reusable zod schema must be written inside the `@chatroom/validators` package
+- any schema infered type must be exported from the containing schema file and consumed across the repo
+- may use infered zod schema from drizzle-orm database schema for base schema (use drizzle-zod package for schema inferrence) 
+
 ### Error Handling & Debugging
 
 - Remove `console.log`, `debugger`, and `alert` statements from production code
@@ -87,19 +122,9 @@ Write code that is **accessible, performant, type-safe, and maintainable**. Focu
 
 ### Framework-Specific Guidance
 
-**Next.js:**
-
-- Use Next.js `<Image>` component for images
-- Use `next/head` or App Router metadata API for head elements
-- Use Server Components for async data fetching instead of async Client Components
-
 **React 19+:**
 
 - Use ref as a prop instead of `React.forwardRef`
-
-**Solid/Svelte/Vue/Qwik:**
-
-- Use `class` and `for` attributes (not `className` or `htmlFor`)
 
 ---
 
@@ -120,6 +145,37 @@ Biome's linter will catch most issues automatically. Focus your attention on:
 4. **Edge cases** - Handle boundary conditions and error states
 5. **User experience** - Accessibility, performance, and usability considerations
 6. **Documentation** - Add comments for complex logic, but prefer self-documenting code
+
+---
+
+# btca MCP Usage Instructions
+
+btca runs a cloud subagent that searches open source repos
+
+Use it whenever the user says "use btca", or when you need info that should come from the listed resources.
+
+## Tools
+
+The btca MCP server provides these tools:
+
+- `listResources` - List all available documentation resources
+- `ask` - Ask a question about specific resources
+
+## resources
+
+The resources available are defined by the end user in their btca dashboard. If there's a resource you need but it's not available in `listResources`, proceed without btca. When your task is done, clearly note that you'd like access to the missing resource.
+
+## Critical Workflow
+
+**Always call `listResources` first** before using `ask`. The `ask` tool requires exact resource names from the list.
+
+### Example
+
+1. Call listResources to get available resources
+2. Note the "name" field for each resource (e.g., "svelteKit", not "SvelteKit" or "svelte-kit")
+3. Call ask with:
+   - question: "How to create a orpc procedure?"
+   - resources: ["orpc"]
 
 ---
 

@@ -1,11 +1,13 @@
 import { expo } from "@better-auth/expo";
 import { db } from "@chatroom/db";
+import { generateID } from "@chatroom/db/lib/utils";
 // biome-ignore lint/performance/noNamespaceImport: schema namespace required by drizzle adapter
 import * as schema from "@chatroom/db/schema";
 import { env } from "@chatroom/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { openAPI } from "better-auth/plugins";
+import { getAvailableUsername, getBaseUsername } from "./lib/utils";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -13,6 +15,33 @@ export const auth = betterAuth({
 		usePlural: true,
 		schema,
 	}),
+	user: {
+		additionalFields: {
+			username: {
+				type: "string",
+				required: true,
+			},
+		},
+	},
+	databaseHooks: {
+		user: {
+			create: {
+				before: async (user) => {
+					const baseUsername = getBaseUsername(user.email);
+					const username = await getAvailableUsername(baseUsername);
+					const userId = generateID("usr");
+
+					return {
+						data: {
+							...user,
+							id: userId,
+							username,
+						},
+					};
+				},
+			},
+		},
+	},
 	socialProviders: {
 		github: {
 			clientId: env.GITHUB_CLIENT_ID,

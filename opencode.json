@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "btca-local": {
+      "type": "local",
+      "command": ["bunx", "btca", "mcp"],
+      "enabled": true
+    }
+  }
+}
