@@ -28,6 +28,6 @@
   "devDependencies": {
     "@chatroom/config": "workspace:*",
     "hono": "catalog:",
-    "typescript": "catalog:"
+    "@typescript/native-preview": "catalog:"
   }
 }

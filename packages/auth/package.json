@@ -22,6 +22,6 @@
   },
   "devDependencies": {
     "@chatroom/config": "workspace:*",
-    "typescript": "catalog:"
+    "@typescript/native-preview": "catalog:"
   }
 }

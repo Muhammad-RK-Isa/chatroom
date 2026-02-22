@@ -19,6 +19,6 @@
   "devDependencies": {
     "@chatroom/config": "workspace:*",
     "@types/bun": "catalog:",
-    "typescript": "catalog:"
+    "@typescript/native-preview": "catalog:"
   }
 }

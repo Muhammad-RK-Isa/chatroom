@@ -4,7 +4,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "bun build src/index.ts --outdir ./dist --target bun",
-    "check-types": "tsc -b",
+    "check-types": "tsgo -b",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
     "dev": "bun run --hot src/index.ts",
@@ -29,6 +29,6 @@
     "@chatroom/config": "workspace:*",
     "@types/bun": "catalog:",
     "tsdown": "^0.16.5",
-    "typescript": "catalog:"
+    "@typescript/native-preview": "catalog:"
   }
 }
