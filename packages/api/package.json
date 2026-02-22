@@ -16,6 +16,7 @@
     "@chatroom/auth": "workspace:*",
     "@chatroom/db": "workspace:*",
     "@chatroom/env": "workspace:*",
+    "@chatroom/validators": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",

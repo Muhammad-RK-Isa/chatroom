@@ -10,8 +10,6 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useState } from "react";
-
-import Header from "~/components/header";
 import { ThemeProvider } from "~/components/theme-provider";
 import { Toaster } from "~/components/ui/sonner";
 import { link, type orpc } from "~/utils/orpc";
@@ -59,11 +57,10 @@ function RootComponent() {
 				storageKey="chatroom-theme"
 			>
 				<TooltipProvider>
-					<div className="grid h-svh grid-rows-[auto_1fr]">
-						<Header />
+					<div className="h-dvh">
 						<Outlet />
 					</div>
-					<Toaster richColors />
+					<Toaster position="top-right" richColors />
 				</TooltipProvider>
 			</ThemeProvider>
 			<TanStackRouterDevtools position="bottom-left" />

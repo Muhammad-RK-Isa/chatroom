@@ -9,11 +9,8 @@ import { RPCHandler } from "@orpc/server/fetch";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
 
 export const app = new Hono();
-
-app.use(logger());
 app.use(
 	"/*",
 	cors({
@@ -25,6 +22,35 @@ app.use(
 );
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+
+function logORPCError(error: unknown): void {
+	const message = error instanceof Error ? error.message : String(error);
+
+	if (
+		message.includes("AbortError") ||
+		message.includes("aborted") ||
+		message.includes("The operation was aborted")
+	) {
+		return;
+	}
+
+	const code =
+		typeof error === "object" && error !== null && "code" in error
+			? String((error as { code?: unknown }).code ?? "")
+			: "";
+
+	if (
+		code === "BAD_REQUEST" ||
+		code === "UNAUTHORIZED" ||
+		code === "FORBIDDEN" ||
+		code === "NOT_FOUND" ||
+		code === "CONFLICT"
+	) {
+		return;
+	}
+
+	console.error(error);
+}
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
 	plugins: [
@@ -41,7 +67,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 	],
 	interceptors: [
 		onError((error) => {
-			console.error(error);
+			logORPCError(error);
 		}),
 	],
 });
@@ -49,7 +75,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 export const rpcHandler = new RPCHandler(appRouter, {
 	interceptors: [
 		onError((error) => {
-			console.error(error);
+			logORPCError(error);
 		}),
 	],
 });
