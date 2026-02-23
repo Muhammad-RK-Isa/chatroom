@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Check, Search } from "lucide-react";
+import { CheckIcon, SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
@@ -87,7 +87,7 @@ export function CreateGroupDialog({
 				/>
 
 				<div className="relative">
-					<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+					<SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						className="pl-9"
 						onChange={(event) => setSearchQuery(event.target.value)}
@@ -120,7 +120,9 @@ export function CreateGroupDialog({
 										@{result.user.username}
 									</div>
 								</div>
-								{isSelected ? <Check className="size-4 text-primary" /> : null}
+								{isSelected ? (
+									<CheckIcon className="size-4 text-primary" />
+								) : null}
 							</button>
 						);
 					})}

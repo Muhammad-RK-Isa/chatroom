@@ -1,6 +1,5 @@
-import { Loading03Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Loader2Icon } from "lucide-react";
 import React from "react";
 import { GitHub } from "~/components/icons/github";
 import { Google } from "~/components/icons/google";
@@ -70,7 +69,7 @@ function RouteComponent() {
 					variant="outline"
 				>
 					{isAuthingGoogle ? (
-						<HugeiconsIcon className="animate-spin" icon={Loading03Icon} />
+						<Loader2Icon className="animate-spin" />
 					) : (
 						<Google />
 					)}
@@ -83,7 +82,7 @@ function RouteComponent() {
 					variant="outline"
 				>
 					{isAuthingGitHub ? (
-						<HugeiconsIcon className="animate-spin" icon={Loading03Icon} />
+						<Loader2Icon className="animate-spin" />
 					) : (
 						<GitHub />
 					)}

@@ -6,7 +6,7 @@ import {
 	type EmojiPickerListRowProps,
 	EmojiPicker as EmojiPickerPrimitive,
 } from "frimousse";
-import { LoaderIcon, SearchIcon } from "lucide-react";
+import { Loader2Icon, SearchIcon } from "lucide-react";
 import type * as React from "react";
 
 import { cn } from "~/lib/utils";
@@ -102,7 +102,7 @@ function EmojiPickerContent({
 				className="absolute inset-0 flex items-center justify-center text-muted-foreground"
 				data-slot="emoji-picker-loading"
 			>
-				<LoaderIcon className="size-4 animate-spin" />
+				<Loader2Icon className="size-4 animate-spin" />
 			</EmojiPickerPrimitive.Loading>
 			<EmojiPickerPrimitive.Empty
 				className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm"
