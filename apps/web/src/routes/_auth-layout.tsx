@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_auth-layout")({
 
 function RouteComponent() {
 	return (
-		<div className="relative flex w-full items-center justify-center bg-background">
+		<div className="relative flex h-full w-full items-center justify-center bg-background">
 			<div
 				className={cn(
 					"absolute inset-0",

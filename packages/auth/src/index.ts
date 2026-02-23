@@ -20,6 +20,7 @@ export const auth = betterAuth({
 			username: {
 				type: "string",
 				required: true,
+				input: false,
 			},
 		},
 	},
@@ -76,3 +77,5 @@ export const auth = betterAuth({
 	},
 	plugins: [expo(), openAPI()],
 });
+
+export type Auth = typeof auth;

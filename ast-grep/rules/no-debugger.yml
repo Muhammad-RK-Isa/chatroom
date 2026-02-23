@@ -1,0 +1,8 @@
+id: no-debugger
+language: JavaScript
+severity: error
+message: Remove debugger statements before committing.
+rule:
+  pattern: debugger
+files:
+  - "**/*.{js,jsx,cjs,mjs,ts,tsx}"

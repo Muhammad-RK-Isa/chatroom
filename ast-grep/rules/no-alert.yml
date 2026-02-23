@@ -1,0 +1,8 @@
+id: no-alert
+language: JavaScript
+severity: warning
+message: Avoid alert in application code.
+rule:
+  pattern: alert($$$ARGS)
+files:
+  - "**/*.{js,jsx,cjs,mjs,ts,tsx}"

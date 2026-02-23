@@ -1,0 +1,8 @@
+id: no-console-log
+language: JavaScript
+severity: warning
+message: Remove console.log before committing.
+rule:
+  pattern: console.log($$$ARGS)
+files:
+  - "**/*.{js,jsx,cjs,mjs,ts,tsx}"
