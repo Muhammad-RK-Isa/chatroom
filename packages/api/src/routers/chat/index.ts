@@ -10,7 +10,6 @@ import { searchUsers } from "./search-users";
 import { sendMessage } from "./send-message";
 import { setConversationMute } from "./set-conversation-mute";
 import { setTyping } from "./set-typing";
-import { stream } from "./stream";
 import { unblockUser } from "./unblock-user";
 import { updatePresence } from "./update-presence";
 
@@ -29,5 +28,4 @@ export const chatRouter = {
 	unblockUser,
 	acceptMessageRequest,
 	updatePresence,
-	stream,
 };

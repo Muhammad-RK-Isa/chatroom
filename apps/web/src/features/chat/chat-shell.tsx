@@ -716,13 +716,6 @@ export function ChatShell({ conversationId }: ChatShellProps) {
 		})
 	);
 
-	const streamQuery = useQuery(
-		orpc.chat.stream.experimental_liveOptions({
-			retry: true,
-			staleTime: Number.POSITIVE_INFINITY,
-		})
-	);
-
 	const openDmMutation = useMutation(orpc.chat.openDm.mutationOptions());
 	const createGroupMutation = useMutation(
 		orpc.chat.createGroup.mutationOptions()
@@ -763,7 +756,6 @@ export function ChatShell({ conversationId }: ChatShellProps) {
 	const { typingNamesByConversationId } = useChatRealtime({
 		conversationId,
 		currentUserId: authSession.data?.user.id,
-		streamEvent: streamQuery.data,
 		onOpenConversation: handleOpenConversation,
 		updatePresence: updatePresenceMutation.mutate,
 	});
