@@ -13,16 +13,19 @@
     "test:watch": "bun test --watch"
   },
   "dependencies": {
+    "@socket.io/bun-engine": "catalog:",
     "@chatroom/api": "workspace:*",
     "@chatroom/auth": "workspace:*",
     "@chatroom/db": "workspace:*",
     "@chatroom/env": "workspace:*",
+    "@chatroom/validators": "workspace:*",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/zod": "catalog:",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "hono": "catalog:",
+    "socket.io": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -29,6 +29,17 @@ function removeListener(userId: string, listener: ChatEventListener): void {
 	}
 }
 
+export function subscribeToChatEvents(
+	userId: string,
+	listener: ChatEventListener
+): () => void {
+	addListener(userId, listener);
+
+	return () => {
+		removeListener(userId, listener);
+	};
+}
+
 export function publishChatEventToUsers(
 	userIds: string[],
 	event: ChatStreamEvent
@@ -43,56 +54,5 @@ export function publishChatEventToUsers(
 		for (const listener of listeners) {
 			listener(event);
 		}
-	}
-}
-
-export async function* subscribeChatEvents(
-	userId: string,
-	signal: AbortSignal
-): AsyncGenerator<ChatStreamEvent, void, void> {
-	const queue: ChatStreamEvent[] = [];
-	let resume: (() => void) | null = null;
-
-	const listener: ChatEventListener = (event) => {
-		queue.push(event);
-		if (resume) {
-			resume();
-			resume = null;
-		}
-	};
-
-	addListener(userId, listener);
-
-	try {
-		while (!signal.aborted) {
-			if (queue.length === 0) {
-				await new Promise<void>((resolve) => {
-					resume = resolve;
-					signal.addEventListener(
-						"abort",
-						() => {
-							if (resume) {
-								resume();
-								resume = null;
-							}
-							resolve();
-						},
-						{ once: true }
-					);
-				});
-			}
-
-			while (queue.length > 0) {
-				const nextEvent = queue.shift();
-
-				if (!nextEvent) {
-					continue;
-				}
-
-				yield nextEvent;
-			}
-		}
-	} finally {
-		removeListener(userId, listener);
 	}
 }
