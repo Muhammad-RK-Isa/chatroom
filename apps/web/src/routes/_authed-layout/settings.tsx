@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { Moon, Sun } from "lucide-react";
+import { MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "~/components/theme-provider";
 import { Button } from "~/components/ui/button";
 import {
@@ -37,7 +37,7 @@ function RouteComponent() {
 						type="button"
 						variant="outline"
 					>
-						<Sun className="size-4" />
+						<SunIcon className="size-4" />
 						Light
 					</Button>
 					<Button
@@ -45,7 +45,7 @@ function RouteComponent() {
 						type="button"
 						variant="outline"
 					>
-						<Moon className="size-4" />
+						<MoonIcon className="size-4" />
 						Dark
 					</Button>
 					<Button

@@ -2,25 +2,21 @@ import type {
 	ChatConversationListItem,
 	ChatGetThreadOutput,
 } from "@chatroom/validators";
-import {
-	AddTeamIcon,
-	ChatAddIcon,
-	MoreHorizontalFreeIcons,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
-	BellOff,
-	EllipsisVertical,
-	Laptop2,
-	Loader2,
-	LogOut,
-	Moon,
-	Settings,
-	ShieldBan,
-	Sun,
-	Users,
+	BellOffIcon,
+	LaptopIcon,
+	Loader2Icon,
+	LogOutIcon,
+	MessageCirclePlusIcon,
+	MoonIcon,
+	MoreHorizontalIcon,
+	MoreVerticalIcon,
+	SettingsIcon,
+	ShieldBanIcon,
+	SunIcon,
+	UsersRoundIcon,
 } from "lucide-react";
 import {
 	type ChangeEvent,
@@ -33,6 +29,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { AppLogo } from "~/components/icons/app-logo";
+import { HalfMoon } from "~/components/icons/half-moon";
 import { useTheme } from "~/components/theme-provider";
 import {
 	Avatar,
@@ -123,7 +120,7 @@ function ConversationItem({
 				/>
 				<AvatarFallback>
 					{conversation.type === "group" ? (
-						<Users className="size-4" />
+						<UsersRoundIcon className="size-4" />
 					) : (
 						getInitials(conversation.name)
 					)}
@@ -144,10 +141,10 @@ function ConversationItem({
 							{conversation.name}
 						</span>
 						{conversation.muted ? (
-							<BellOff className="size-3 text-muted-foreground" />
+							<BellOffIcon className="size-3 text-muted-foreground" />
 						) : null}
 						{conversation.blockedState !== "none" ? (
-							<ShieldBan className="size-3 text-destructive" />
+							<ShieldBanIcon className="size-3 text-destructive" />
 						) : null}
 					</div>
 					{conversation.lastMessage ? (
@@ -211,7 +208,7 @@ function UserMenu({ onOpenSettings }: { onOpenSettings: () => void }) {
 							@{currentUser?.username ?? "user"}
 						</p>
 					</div>
-					<HugeiconsIcon icon={MoreHorizontalFreeIcons} />
+					<MoreHorizontalIcon />
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" side="top">
 					<div className="px-2 py-1.5">
@@ -224,13 +221,13 @@ function UserMenu({ onOpenSettings }: { onOpenSettings: () => void }) {
 					</div>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem onClick={onOpenSettings}>
-						<Settings className="size-4" />
+						<SettingsIcon className="size-4" />
 						Settings
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuSub>
 						<DropdownMenuSubTrigger>
-							<Sun className="size-4" />
+							<HalfMoon />
 							Theme
 						</DropdownMenuSubTrigger>
 						<DropdownMenuSubContent>
@@ -242,11 +239,11 @@ function UserMenu({ onOpenSettings }: { onOpenSettings: () => void }) {
 										value={thm}
 									>
 										{thm === "light" ? (
-											<Sun />
+											<SunIcon />
 										) : thm === "dark" ? (
-											<Moon />
+											<MoonIcon />
 										) : (
-											<Laptop2 />
+											<LaptopIcon />
 										)}
 										{thm}
 									</DropdownMenuRadioItem>
@@ -256,7 +253,7 @@ function UserMenu({ onOpenSettings }: { onOpenSettings: () => void }) {
 					</DropdownMenuSub>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem onClick={handleSignOut} variant="destructive">
-						<LogOut className="size-4" />
+						<LogOutIcon className="size-4" />
 						Sign out
 					</DropdownMenuItem>
 				</DropdownMenuContent>
@@ -300,13 +297,13 @@ function Sidebar({
 						<p className="font-mono font-semibold text-lg">{siteConfig.name}</p>
 					</div>
 				</div>
-				<div className="flex gap-1 py-1">
+				<div className="flex gap-1 py-0.5">
 					<Tooltip>
 						<TooltipTrigger
 							delay={1000}
 							render={
 								<Button onClick={onOpenSearch} size="icon" variant="ghost">
-									<HugeiconsIcon className="size-5" icon={ChatAddIcon} />
+									<MessageCirclePlusIcon />
 								</Button>
 							}
 						/>
@@ -319,7 +316,7 @@ function Sidebar({
 							delay={1000}
 							render={
 								<Button onClick={onOpenGroup} size="icon" variant="ghost">
-									<HugeiconsIcon className="size-5" icon={AddTeamIcon} />
+									<UsersRoundIcon />
 									<span className="sr-only">Create group</span>
 								</Button>
 							}
@@ -334,7 +331,7 @@ function Sidebar({
 			<div className="min-h-0 flex-1 overflow-y-auto p-2">
 				{isLoading ? (
 					<div className="flex items-center justify-center py-10 text-muted-foreground text-sm">
-						<Loader2 className="mr-2 size-4 animate-spin" />
+						<Loader2Icon className="mr-2 size-4 animate-spin" />
 						Loading chats...
 					</div>
 				) : null}
@@ -412,7 +409,7 @@ function ThreadHeader({
 					<Avatar className="size-10">
 						<AvatarFallback>
 							{thread.conversation.type === "group" ? (
-								<Users className="size-4" />
+								<UsersRoundIcon className="size-4" />
 							) : (
 								getInitials(thread.conversation.name)
 							)}
@@ -432,7 +429,7 @@ function ThreadHeader({
 						className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
 						type="button"
 					>
-						<EllipsisVertical className="size-4" />
+						<MoreVerticalIcon className="size-4" />
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuItem onClick={onToggleMute}>
@@ -580,7 +577,7 @@ function ThreadPane({
 	if (conversationId && isLoading) {
 		return (
 			<div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-				<Loader2 className="mr-2 size-4 animate-spin" />
+				<Loader2Icon className="mr-2 size-4 animate-spin" />
 				Loading conversation...
 			</div>
 		);
