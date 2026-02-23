@@ -1,4 +1,4 @@
-import { SendHorizontal, Smile } from "lucide-react";
+import { SendHorizontalIcon, SmileIcon } from "lucide-react";
 import {
 	type ChangeEvent,
 	type FormEvent,
@@ -122,12 +122,12 @@ export function MessageComposer({
 				<PopoverTrigger
 					render={
 						<Button
-							className="absolute bottom-4 left-4"
+							className="absolute bottom-4.5 left-4"
 							disabled={disabled}
 							size="icon"
 							variant="ghost"
 						>
-							<Smile className="size-4" />
+							<SmileIcon className="size-4" />
 						</Button>
 					}
 				/>
@@ -148,7 +148,7 @@ export function MessageComposer({
 			</Popover>
 
 			<Input
-				className="h-10 pr-10 pl-9"
+				className="h-12 px-10"
 				disabled={disabled}
 				onChange={handleChange}
 				onKeyDown={handleKeyDown}
@@ -158,12 +158,12 @@ export function MessageComposer({
 			/>
 
 			<Button
-				className="absolute right-4 bottom-4"
+				className="absolute right-4.5 bottom-4.5"
 				disabled={disabled || text.trim().length === 0}
 				size="icon"
 				type="submit"
 			>
-				<SendHorizontal className="size-4" />
+				<SendHorizontalIcon />
 				<span className="sr-only">Send message</span>
 			</Button>
 		</form>

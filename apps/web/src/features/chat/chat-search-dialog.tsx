@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Search, UsersRound } from "lucide-react";
+import { SearchIcon, UsersRound } from "lucide-react";
 import { useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
@@ -59,7 +59,7 @@ export function ChatSearchDialog({
 				</DialogHeader>
 
 				<div className="relative">
-					<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+					<SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						autoFocus
 						className="pl-9"
