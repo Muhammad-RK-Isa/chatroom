@@ -2,16 +2,21 @@ import type {
 	ChatConversationListItem,
 	ChatGetThreadOutput,
 } from "@chatroom/validators";
+import {
+	AddTeamIcon,
+	ChatAddIcon,
+	MoreHorizontalFreeIcons,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
 	BellOff,
 	EllipsisVertical,
+	Laptop2,
 	Loader2,
 	LogOut,
-	MessageSquare,
 	Moon,
-	Search,
 	Settings,
 	ShieldBan,
 	Sun,
@@ -27,8 +32,14 @@ import {
 	useState,
 } from "react";
 import { toast } from "sonner";
+import { AppLogo } from "~/components/icons/app-logo";
 import { useTheme } from "~/components/theme-provider";
-import { Avatar, AvatarFallback } from "~/components/ui/avatar";
+import {
+	Avatar,
+	AvatarBadge,
+	AvatarFallback,
+	AvatarImage,
+} from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -42,14 +53,25 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { authClient } from "~/lib/auth-client";
+import { orpc, queryClient } from "~/lib/orpc";
+import { siteConfig } from "~/lib/site.config";
 import { cn } from "~/lib/utils";
-import { orpc, queryClient } from "~/utils/orpc";
 import { ChatSearchDialog } from "./chat-search-dialog";
 import {
 	formatConversationTimestamp,
@@ -95,6 +117,10 @@ function ConversationItem({
 			type="button"
 		>
 			<Avatar className="size-9">
+				<AvatarImage
+					alt={conversation.dmPeer?.user.username}
+					src={conversation.dmPeer?.user.image ?? ""}
+				/>
 				<AvatarFallback>
 					{conversation.type === "group" ? (
 						<Users className="size-4" />
@@ -102,6 +128,13 @@ function ConversationItem({
 						getInitials(conversation.name)
 					)}
 				</AvatarFallback>
+				<AvatarBadge
+					className={cn(
+						conversation.dmPeer?.presence.status === "online"
+							? "bg-green-600 dark:bg-green-800"
+							: "bg-destructive"
+					)}
+				/>
 			</Avatar>
 
 			<div className="min-w-0 flex-1">
@@ -139,48 +172,48 @@ function ConversationItem({
 	);
 }
 
-function UserMenu({
-	currentUser,
-	currentUserHandle,
-	onOpenSettings,
-	onSignOut,
-	setTheme,
-}: {
-	currentUser: {
-		name?: string | null;
-		email?: string | null;
-	} | null;
-	currentUserHandle: string;
-	onOpenSettings: () => void;
-	onSignOut: () => void;
-	setTheme: (theme: "light" | "dark" | "system") => void;
-}) {
+function UserMenu({ onOpenSettings }: { onOpenSettings: () => void }) {
+	const router = useRouter();
+	const currentUser = authClient.useSession().data?.user;
+	const { setTheme, themes, theme } = useTheme();
+
+	async function handleSignOut() {
+		await authClient.signOut();
+		await router.invalidate();
+	}
+
 	return (
 		<div className="px-2 py-2">
 			<DropdownMenu>
 				<DropdownMenuTrigger
 					render={
 						<Button
-							className="h-auto w-full justify-start gap-3 rounded-xl px-2 py-2"
+							className="h-auto w-full justify-start gap-3 rounded-xl px-2 py-1"
+							size="lg"
 							variant="ghost"
 						/>
 					}
 				>
-					<Avatar className="size-9">
+					<Avatar className="size-8">
+						<AvatarImage
+							alt={currentUser?.username}
+							src={currentUser?.image ?? ""}
+						/>
 						<AvatarFallback>
 							{getInitials(currentUser?.name ?? "User")}
 						</AvatarFallback>
 					</Avatar>
 					<div className="min-w-0 flex-1 text-left">
-						<p className="truncate font-medium text-sm">
+						<p className="truncate font-medium text-xs">
 							{currentUser?.name ?? "Your account"}
 						</p>
 						<p className="truncate text-muted-foreground text-xs">
-							@{currentUserHandle}
+							@{currentUser?.username ?? "user"}
 						</p>
 					</div>
+					<HugeiconsIcon icon={MoreHorizontalFreeIcons} />
 				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-64" side="top">
+				<DropdownMenuContent align="end" side="top">
 					<div className="px-2 py-1.5">
 						<p className="truncate font-medium text-sm">
 							{currentUser?.name ?? "Your account"}
@@ -195,19 +228,34 @@ function UserMenu({
 						Settings
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem onClick={() => setTheme("light")}>
-						<Sun className="size-4" />
-						Light theme
-					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => setTheme("dark")}>
-						<Moon className="size-4" />
-						Dark theme
-					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => setTheme("system")}>
-						System theme
-					</DropdownMenuItem>
+					<DropdownMenuSub>
+						<DropdownMenuSubTrigger>
+							<Sun className="size-4" />
+							Theme
+						</DropdownMenuSubTrigger>
+						<DropdownMenuSubContent>
+							<DropdownMenuRadioGroup onValueChange={setTheme} value={theme}>
+								{themes.map((thm) => (
+									<DropdownMenuRadioItem
+										className="capitalize"
+										key={thm}
+										value={thm}
+									>
+										{thm === "light" ? (
+											<Sun />
+										) : thm === "dark" ? (
+											<Moon />
+										) : (
+											<Laptop2 />
+										)}
+										{thm}
+									</DropdownMenuRadioItem>
+								))}
+							</DropdownMenuRadioGroup>
+						</DropdownMenuSubContent>
+					</DropdownMenuSub>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem onClick={onSignOut} variant="destructive">
+					<DropdownMenuItem onClick={handleSignOut} variant="destructive">
 						<LogOut className="size-4" />
 						Sign out
 					</DropdownMenuItem>
@@ -224,11 +272,7 @@ function Sidebar({
 	onSelectConversation,
 	onOpenSearch,
 	onOpenGroup,
-	currentUser,
-	currentUserHandle,
 	onOpenSettings,
-	onSignOut,
-	setTheme,
 }: {
 	conversations: ChatConversationListItem[];
 	conversationId?: string;
@@ -236,11 +280,7 @@ function Sidebar({
 	onSelectConversation: (id: string) => void;
 	onOpenSearch: () => void;
 	onOpenGroup: () => void;
-	currentUser: { name?: string | null; email?: string | null } | null;
-	currentUserHandle: string;
 	onOpenSettings: () => void;
-	onSignOut: () => void;
-	setTheme: (theme: "light" | "dark" | "system") => void;
 }) {
 	const dms = conversations.filter(
 		(conversation) => conversation.type === "dm"
@@ -252,30 +292,46 @@ function Sidebar({
 	return (
 		<aside className="flex min-h-0 flex-col border-sidebar-border border-r bg-sidebar">
 			<div className="flex items-center justify-between border-b px-3 py-3">
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-2.5">
 					<div className="inline-flex size-8 items-center justify-center rounded-lg border bg-muted text-foreground">
-						<MessageSquare className="size-4" />
+						<AppLogo className="size-5 stroke-primary" />
 					</div>
 					<div>
-						<p className="font-semibold text-sm">Chats</p>
-						<p className="text-muted-foreground text-xs">
-							Direct messages and groups
-						</p>
+						<p className="font-mono font-semibold text-lg">{siteConfig.name}</p>
 					</div>
 				</div>
-				<div className="flex gap-1">
-					<Button onClick={onOpenSearch} size="icon" variant="ghost">
-						<Search className="size-4" />
-						<span className="sr-only">Search people</span>
-					</Button>
-					<Button onClick={onOpenGroup} size="icon" variant="ghost">
-						<Users className="size-4" />
-						<span className="sr-only">Create group</span>
-					</Button>
+				<div className="flex gap-1 py-1">
+					<Tooltip>
+						<TooltipTrigger
+							delay={1000}
+							render={
+								<Button onClick={onOpenSearch} size="icon" variant="ghost">
+									<HugeiconsIcon className="size-5" icon={ChatAddIcon} />
+								</Button>
+							}
+						/>
+						<TooltipContent side="left">
+							<p>Add new people to chat</p>
+						</TooltipContent>
+					</Tooltip>
+					<Tooltip>
+						<TooltipTrigger
+							delay={1000}
+							render={
+								<Button onClick={onOpenGroup} size="icon" variant="ghost">
+									<HugeiconsIcon className="size-5" icon={AddTeamIcon} />
+									<span className="sr-only">Create group</span>
+								</Button>
+							}
+						/>
+						<TooltipContent side="right">
+							<p>Create new group</p>
+						</TooltipContent>
+					</Tooltip>
 				</div>
 			</div>
 
-			<div className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
+			<div className="min-h-0 flex-1 overflow-y-auto p-2">
 				{isLoading ? (
 					<div className="flex items-center justify-center py-10 text-muted-foreground text-sm">
 						<Loader2 className="mr-2 size-4 animate-spin" />
@@ -285,7 +341,7 @@ function Sidebar({
 
 				{dms.length > 0 ? (
 					<div>
-						<div className="px-2 pb-1 font-semibold text-[11px] text-muted-foreground uppercase tracking-wide">
+						<div className="px-2 pb-2 font-semibold text-[11px] text-muted-foreground tracking-wider">
 							DMs
 						</div>
 						{dms.map((conversation) => (
@@ -301,7 +357,7 @@ function Sidebar({
 
 				{groups.length > 0 ? (
 					<div className="mt-3">
-						<div className="px-2 pb-1 font-semibold text-[11px] text-muted-foreground uppercase tracking-wide">
+						<div className="px-2 pb-2 font-semibold text-[11px] text-muted-foreground tracking-wider">
 							Groups
 						</div>
 						{groups.map((conversation) => (
@@ -323,13 +379,7 @@ function Sidebar({
 			</div>
 
 			<Separator />
-			<UserMenu
-				currentUser={currentUser}
-				currentUserHandle={currentUserHandle}
-				onOpenSettings={onOpenSettings}
-				onSignOut={onSignOut}
-				setTheme={setTheme}
-			/>
+			<UserMenu onOpenSettings={onOpenSettings} />
 		</aside>
 	);
 }
@@ -639,8 +689,6 @@ function RenameGroupDialog({
 
 export function ChatShell({ conversationId }: ChatShellProps) {
 	const navigate = useNavigate();
-	const router = useRouter();
-	const { setTheme } = useTheme();
 	const messagesBottomRef = useRef<HTMLDivElement | null>(null);
 	const typingStateRef = useRef(false);
 	const previousConversationIdRef = useRef<string | null>(null);
@@ -651,14 +699,7 @@ export function ChatShell({ conversationId }: ChatShellProps) {
 	const [renameGroupDialogOpen, setRenameGroupDialogOpen] = useState(false);
 	const [nextGroupName, setNextGroupName] = useState("");
 
-	const currentUserQuery = useQuery({
-		queryKey: ["auth-session-user"],
-		queryFn: async () => {
-			const { data } = await authClient.getSession();
-			return data?.user ?? null;
-		},
-		staleTime: 60_000,
-	});
+	const authSession = authClient.useSession();
 
 	const conversationsQuery = useQuery(
 		orpc.chat.listConversations.queryOptions()
@@ -724,21 +765,11 @@ export function ChatShell({ conversationId }: ChatShellProps) {
 
 	const { typingNamesByConversationId } = useChatRealtime({
 		conversationId,
-		currentUserId: currentUserQuery.data?.id,
+		currentUserId: authSession.data?.user.id,
 		streamEvent: streamQuery.data,
 		onOpenConversation: handleOpenConversation,
 		updatePresence: updatePresenceMutation.mutate,
 	});
-
-	useEffect(() => {
-		if (!conversationId && conversationsQuery.data?.[0]?.id) {
-			navigate({
-				to: "/chats/$id",
-				params: { id: conversationsQuery.data[0].id },
-				replace: true,
-			});
-		}
-	}, [conversationId, conversationsQuery.data, navigate]);
 
 	useEffect(() => {
 		if (!(conversationId && threadQuery.data)) {
@@ -836,11 +867,7 @@ export function ChatShell({ conversationId }: ChatShellProps) {
 	};
 
 	const thread = threadQuery.data;
-	const currentUser = currentUserQuery.data ?? null;
-	const currentUserHandle =
-		currentUser?.email?.split("@")[0] ??
-		currentUser?.name?.toLowerCase() ??
-		"user";
+	const currentUser = authSession.data?.user ?? null;
 
 	const dmPeerParticipant =
 		thread?.conversation.type === "dm" && currentUser?.id
@@ -976,32 +1003,17 @@ export function ChatShell({ conversationId }: ChatShellProps) {
 		navigate({ to: "/settings" });
 	};
 
-	const handleSignOut = async () => {
-		try {
-			await updatePresenceMutation.mutateAsync({ status: "offline" });
-		} catch {
-			// ignore presence failures during signout
-		}
-
-		await authClient.signOut();
-		await router.invalidate();
-	};
-
 	return (
 		<>
 			<div className="grid h-full min-h-0 md:grid-cols-[320px_1fr]">
 				<Sidebar
 					conversationId={conversationId}
 					conversations={conversationsQuery.data ?? []}
-					currentUser={currentUser ?? null}
-					currentUserHandle={currentUserHandle}
 					isLoading={conversationsQuery.isLoading}
 					onOpenGroup={() => setGroupDialogOpen(true)}
 					onOpenSearch={() => setSearchDialogOpen(true)}
 					onOpenSettings={handleOpenSettings}
 					onSelectConversation={handleOpenConversation}
-					onSignOut={handleSignOut}
-					setTheme={setTheme}
 				/>
 
 				<section className="flex min-h-0 flex-col">

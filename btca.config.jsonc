@@ -42,6 +42,18 @@
       "name": "ast-grep",
       "url": "https://github.com/ast-grep/ast-grep",
       "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "vite",
+      "url": "https://github.com/vitejs/vite",
+      "branch": "main"
+    },
+    {
+      "type": "git",
+      "name": "base-ui",
+      "url": "https://github.com/mui/base-ui",
+      "branch": "main"
     }
   ],
   "model": "gpt-5.3-codex",

@@ -13,6 +13,7 @@ import {
 	CardTitle,
 } from "~/components/ui/card";
 import { authClient } from "~/lib/auth-client";
+import { siteConfig } from "~/lib/site.config";
 
 export const Route = createFileRoute("/_auth-layout/sign-in")({
 	component: RouteComponent,
@@ -59,7 +60,7 @@ function RouteComponent() {
 		<Card className="min-w-xs">
 			<CardHeader>
 				<CardTitle>Sign In</CardTitle>
-				<CardDescription>to continue to Chatroom</CardDescription>
+				<CardDescription>to continue to {siteConfig.name}</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-col space-y-2">
 				<Button

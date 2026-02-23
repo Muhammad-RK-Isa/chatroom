@@ -8,7 +8,7 @@ import {
 	useState,
 } from "react";
 import { toast } from "sonner";
-import { orpc, queryClient } from "~/utils/orpc";
+import { orpc, queryClient } from "~/lib/orpc";
 
 interface UseChatRealtimeOptions {
 	conversationId?: string;

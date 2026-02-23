@@ -12,7 +12,8 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useState } from "react";
 import { ThemeProvider } from "~/components/theme-provider";
 import { Toaster } from "~/components/ui/sonner";
-import { link, type orpc } from "~/utils/orpc";
+import { link, type orpc } from "~/lib/orpc";
+import { siteConfig } from "~/lib/site.config";
 
 import "../index.css";
 import { TooltipProvider } from "~/components/ui/tooltip";
@@ -27,11 +28,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 	head: () => ({
 		meta: [
 			{
-				title: "chatroom",
+				title: siteConfig.title,
 			},
 			{
 				name: "description",
-				content: "chatroom is a web application",
+				content: siteConfig.description,
 			},
 		],
 		links: [
@@ -54,7 +55,7 @@ function RootComponent() {
 				attribute="class"
 				defaultTheme="dark"
 				disableTransitionOnChange
-				storageKey="chatroom-theme"
+				storageKey={siteConfig.themeStorageKey}
 			>
 				<TooltipProvider>
 					<div className="h-dvh">
@@ -63,8 +64,8 @@ function RootComponent() {
 					<Toaster position="top-right" richColors />
 				</TooltipProvider>
 			</ThemeProvider>
-			<TanStackRouterDevtools position="bottom-left" />
-			<ReactQueryDevtools buttonPosition="bottom-right" position="bottom" />
+			<TanStackRouterDevtools position="top-left" />
+			<ReactQueryDevtools buttonPosition="top-right" position="bottom" />
 		</>
 	);
 }

@@ -13,7 +13,7 @@ import {
 	DialogTitle,
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
-import { orpc } from "~/utils/orpc";
+import { orpc } from "~/lib/orpc";
 import { getInitials } from "./chat-utils";
 
 interface CreateGroupDialogProps {

@@ -15,12 +15,12 @@ import {
 	EmojiPickerFooter,
 	EmojiPickerSearch,
 } from "~/components/ui/emoji-picker";
+import { Input } from "~/components/ui/input";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "~/components/ui/popover";
-import { Textarea } from "~/components/ui/textarea";
 
 interface MessageComposerProps {
 	disabled: boolean;
@@ -28,7 +28,7 @@ interface MessageComposerProps {
 	onTypingChange: (isTyping: boolean) => void;
 }
 
-const TYPING_IDLE_DELAY_MS = 2200;
+const TYPING_IDLE_DELAY_MS = 3000;
 
 export function MessageComposer({
 	disabled,
@@ -38,7 +38,7 @@ export function MessageComposer({
 	const [text, setText] = useState("");
 	const [isOpen, setIsOpen] = useState(false);
 	const typingTimeoutRef = useRef<number | null>(null);
-	const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+	const inputRef = useRef<HTMLInputElement | null>(null);
 
 	const clearTypingTimeout = useCallback(() => {
 		if (typingTimeoutRef.current) {
@@ -67,16 +67,13 @@ export function MessageComposer({
 
 			onSend(trimmedText);
 			setText("");
-			requestAnimationFrame(() => {
-				textareaRef.current?.focus();
-			});
 			emitStoppedTyping();
 		},
 		[disabled, emitStoppedTyping, onSend, text]
 	);
 
 	const handleChange = useCallback(
-		(event: ChangeEvent<HTMLTextAreaElement>) => {
+		(event: ChangeEvent<HTMLInputElement>) => {
 			const nextValue = event.target.value;
 			setText(nextValue);
 
@@ -100,10 +97,11 @@ export function MessageComposer({
 	);
 
 	const handleKeyDown = useCallback(
-		(event: KeyboardEvent<HTMLTextAreaElement>) => {
+		(event: KeyboardEvent<HTMLInputElement>) => {
 			if (event.key === "Enter" && !event.shiftKey) {
 				event.preventDefault();
 				handleSubmit();
+				inputRef.current?.focus();
 			}
 		},
 		[handleSubmit]
@@ -117,26 +115,29 @@ export function MessageComposer({
 
 	return (
 		<form
-			className="flex items-end gap-2 border-border border-t bg-card px-3 py-3"
+			className="relative flex items-end gap-2 px-3 py-3"
 			onSubmit={handleSubmit}
 		>
 			<Popover onOpenChange={setIsOpen} open={isOpen}>
 				<PopoverTrigger
 					render={
-						<Button disabled={disabled} size="icon" variant="ghost">
+						<Button
+							className="absolute bottom-4 left-4"
+							disabled={disabled}
+							size="icon"
+							variant="ghost"
+						>
 							<Smile className="size-4" />
 						</Button>
 					}
 				/>
-				<PopoverContent className="w-fit p-0" side="top">
+				<PopoverContent align="start" className="w-fit p-0" side="top">
 					<EmojiPicker
-						className="h-[342px]"
+						className="h-60"
 						onEmojiSelect={({ emoji }) => {
 							setIsOpen(false);
 							setText((currentText) => `${currentText}${emoji}`);
-							requestAnimationFrame(() => {
-								textareaRef.current?.focus();
-							});
+							inputRef.current?.focus();
 						}}
 					>
 						<EmojiPickerSearch />
@@ -146,18 +147,18 @@ export function MessageComposer({
 				</PopoverContent>
 			</Popover>
 
-			<Textarea
-				className="h-9 max-h-32 min-h-9 resize-none py-2"
+			<Input
+				className="h-10 pr-10 pl-9"
 				disabled={disabled}
 				onChange={handleChange}
 				onKeyDown={handleKeyDown}
 				placeholder={disabled ? "Messaging disabled" : "Type a message..."}
-				ref={textareaRef}
-				rows={1}
+				ref={inputRef}
 				value={text}
 			/>
 
 			<Button
+				className="absolute right-4 bottom-4"
 				disabled={disabled || text.trim().length === 0}
 				size="icon"
 				type="submit"

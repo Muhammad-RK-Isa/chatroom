@@ -3,8 +3,9 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 
 import Loader from "./components/loader";
+import { orpc, queryClient } from "./lib/orpc";
+import { siteConfig } from "./lib/site.config";
 import { routeTree } from "./routeTree.gen";
-import { orpc, queryClient } from "./utils/orpc";
 
 const router = createRouter({
 	routeTree,
@@ -24,11 +25,13 @@ declare module "@tanstack/react-router" {
 	}
 }
 
-const rootElement = document.getElementById("app");
+const rootElement = document.getElementById("__chatroom");
 
 if (!rootElement) {
 	throw new Error("Root element not found");
 }
+
+document.title = siteConfig.title;
 
 if (!rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
