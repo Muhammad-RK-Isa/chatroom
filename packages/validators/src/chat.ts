@@ -201,9 +201,3 @@ export type ChatMessageDeliveryStatus = z.infer<
 	typeof chatMessageDeliveryStatusSchema
 >;
 export type ChatStreamEvent = z.infer<typeof chatStreamEventSchema>;
-
-export interface ChatSocketServerToClientEvents {
-	"chat:event": (event: ChatStreamEvent) => void;
-}
-
-export type ChatSocketClientToServerEvents = Record<never, never>;
