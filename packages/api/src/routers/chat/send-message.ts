@@ -4,13 +4,15 @@ import {
 	chatSendMessageInputSchema,
 	chatSendMessageOutputSchema,
 } from "@chatroom/validators";
-import { inArray } from "drizzle-orm";
+import { ORPCError } from "@orpc/server";
+import { eq, inArray } from "drizzle-orm";
 import { protectedProcedure } from "../../index";
 import { requireAuthenticatedUserId } from "../../lib/utils";
 import { publishChatEventToUsers } from "./events";
 import {
 	chatErrorMap,
 	ensureCanSendInConversation,
+	isMessageVisibleToUser,
 	loadConversationAccess,
 	publishConversationEvents,
 	resolvePresenceStatus,
@@ -33,11 +35,32 @@ export const sendMessage = protectedProcedure
 			currentUserId: userId,
 		});
 
+		if (input.replyToMessageId) {
+			const [parentMessage] = await db
+				.select({
+					conversationId: messages.conversationId,
+				})
+				.from(messages)
+				.where(eq(messages.id, input.replyToMessageId))
+				.limit(1);
+
+			if (
+				!parentMessage ||
+				parentMessage.conversationId !== access.conversation.id ||
+				!(await isMessageVisibleToUser(input.replyToMessageId, userId))
+			) {
+				throw new ORPCError("BAD_REQUEST", {
+					message: "Reply target is not available",
+				});
+			}
+		}
+
 		const [createdMessage] = await db
 			.insert(messages)
 			.values({
 				conversationId: access.conversation.id,
 				senderUserId: userId,
+				replyToMessageId: input.replyToMessageId ?? null,
 				text: input.text,
 			})
 			.returning({ id: messages.id });

@@ -2,6 +2,7 @@ import { db } from "@chatroom/db";
 import {
 	conversationMembers,
 	conversations,
+	messageDeletions,
 	messageReceipts,
 	messages,
 	userBlocks,
@@ -243,9 +244,30 @@ export const listConversations = protectedProcedure
 				.from(userPresences)
 				.where(inArray(userPresences.userId, memberUserIds)),
 			db
-				.select()
+				.select({
+					id: messages.id,
+					conversationId: messages.conversationId,
+					senderUserId: messages.senderUserId,
+					replyToMessageId: messages.replyToMessageId,
+					text: messages.text,
+					deletedAt: messages.deletedAt,
+					createdAt: messages.createdAt,
+				})
 				.from(messages)
-				.where(inArray(messages.conversationId, conversationIds))
+				.leftJoin(
+					messageDeletions,
+					and(
+						eq(messageDeletions.messageId, messages.id),
+						eq(messageDeletions.userId, userId)
+					)
+				)
+				.where(
+					and(
+						inArray(messages.conversationId, conversationIds),
+						isNull(messages.deletedAt),
+						isNull(messageDeletions.id)
+					)
+				)
 				.orderBy(desc(messages.createdAt)),
 		]);
 
@@ -257,11 +279,20 @@ export const listConversations = protectedProcedure
 				})
 				.from(messageReceipts)
 				.innerJoin(messages, eq(messages.id, messageReceipts.messageId))
+				.leftJoin(
+					messageDeletions,
+					and(
+						eq(messageDeletions.messageId, messages.id),
+						eq(messageDeletions.userId, userId)
+					)
+				)
 				.where(
 					and(
 						eq(messageReceipts.userId, userId),
 						isNull(messageReceipts.seenAt),
 						ne(messages.senderUserId, userId),
+						isNull(messages.deletedAt),
+						isNull(messageDeletions.id),
 						inArray(messages.conversationId, conversationIds)
 					)
 				)
@@ -273,11 +304,20 @@ export const listConversations = protectedProcedure
 				})
 				.from(messageReceipts)
 				.innerJoin(messages, eq(messages.id, messageReceipts.messageId))
+				.leftJoin(
+					messageDeletions,
+					and(
+						eq(messageDeletions.messageId, messages.id),
+						eq(messageDeletions.userId, userId)
+					)
+				)
 				.where(
 					and(
 						eq(messages.senderUserId, userId),
 						ne(messageReceipts.userId, userId),
 						isNull(messageReceipts.seenAt),
+						isNull(messages.deletedAt),
+						isNull(messageDeletions.id),
 						inArray(messages.conversationId, conversationIds)
 					)
 				)

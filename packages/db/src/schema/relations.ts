@@ -3,6 +3,8 @@ import { relations } from "drizzle-orm";
 import { accounts } from "./accounts";
 import { conversationMembers } from "./conversation-members";
 import { conversations } from "./conversations";
+import { messageDeletions } from "./message-deletions";
+import { messageReactions } from "./message-reactions";
 import { messageReceipts } from "./message-receipts";
 import { messages } from "./messages";
 import { sessions } from "./sessions";
@@ -30,6 +32,8 @@ export const usersRelations = relations(users, ({ many }) => ({
 	}),
 	sentMessages: many(messages),
 	messageReceipts: many(messageReceipts),
+	messageReactions: many(messageReactions),
+	messageDeletions: many(messageDeletions),
 	blocksInitiated: many(userBlocks, { relationName: "user_block_initiator" }),
 	blocksReceived: many(userBlocks, { relationName: "user_block_target" }),
 	presences: many(userPresences),
@@ -102,6 +106,16 @@ export const messagesRelations = relations(messages, ({ many, one }) => ({
 		references: [users.id],
 	}),
 	receipts: many(messageReceipts),
+	reactions: many(messageReactions),
+	deletions: many(messageDeletions),
+	replyToMessage: one(messages, {
+		relationName: "message_reply_to",
+		fields: [messages.replyToMessageId],
+		references: [messages.id],
+	}),
+	replies: many(messages, {
+		relationName: "message_reply_to",
+	}),
 }));
 
 export const messageReceiptsRelations = relations(
@@ -113,6 +127,34 @@ export const messageReceiptsRelations = relations(
 		}),
 		user: one(users, {
 			fields: [messageReceipts.userId],
+			references: [users.id],
+		}),
+	})
+);
+
+export const messageReactionsRelations = relations(
+	messageReactions,
+	({ one }) => ({
+		message: one(messages, {
+			fields: [messageReactions.messageId],
+			references: [messages.id],
+		}),
+		user: one(users, {
+			fields: [messageReactions.userId],
+			references: [users.id],
+		}),
+	})
+);
+
+export const messageDeletionsRelations = relations(
+	messageDeletions,
+	({ one }) => ({
+		message: one(messages, {
+			fields: [messageDeletions.messageId],
+			references: [messages.id],
+		}),
+		user: one(users, {
+			fields: [messageDeletions.userId],
 			references: [users.id],
 		}),
 	})

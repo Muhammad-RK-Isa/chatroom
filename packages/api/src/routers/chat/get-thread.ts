@@ -1,5 +1,7 @@
 import { db } from "@chatroom/db";
 import {
+	messageDeletions,
+	messageReactions,
 	messageReceipts,
 	messages,
 	userPresences,
@@ -42,9 +44,29 @@ export const getThread = protectedProcedure
 				.from(userPresences)
 				.where(inArray(userPresences.userId, memberUserIds)),
 			db
-				.select()
+				.select({
+					id: messages.id,
+					conversationId: messages.conversationId,
+					senderUserId: messages.senderUserId,
+					replyToMessageId: messages.replyToMessageId,
+					text: messages.text,
+					createdAt: messages.createdAt,
+				})
 				.from(messages)
-				.where(eq(messages.conversationId, access.conversation.id))
+				.leftJoin(
+					messageDeletions,
+					and(
+						eq(messageDeletions.messageId, messages.id),
+						eq(messageDeletions.userId, userId)
+					)
+				)
+				.where(
+					and(
+						eq(messages.conversationId, access.conversation.id),
+						isNull(messages.deletedAt),
+						isNull(messageDeletions.id)
+					)
+				)
 				.orderBy(asc(messages.createdAt)),
 		]);
 
@@ -71,13 +93,24 @@ export const getThread = protectedProcedure
 		}
 
 		const messageIds = messageRows.map((message) => message.id);
-		const receiptRows =
+		const [receiptRows, reactionRows] = await Promise.all([
 			messageIds.length > 0
-				? await db
+				? db
 						.select()
 						.from(messageReceipts)
 						.where(inArray(messageReceipts.messageId, messageIds))
-				: [];
+				: Promise.resolve([]),
+			messageIds.length > 0
+				? db
+						.select({
+							messageId: messageReactions.messageId,
+							userId: messageReactions.userId,
+							emoji: messageReactions.emoji,
+						})
+						.from(messageReactions)
+						.where(inArray(messageReactions.messageId, messageIds))
+				: Promise.resolve([]),
+		]);
 
 		const receiptsByMessageId = new Map<
 			string,
@@ -88,6 +121,57 @@ export const getThread = protectedProcedure
 			receipts.push(receipt);
 			receiptsByMessageId.set(receipt.messageId, receipts);
 		}
+
+		const reactionsByMessageId = new Map<string, Map<string, number>>();
+		const myReactionByMessageId = new Map<string, string>();
+		for (const reaction of reactionRows) {
+			const reactionsByEmoji =
+				reactionsByMessageId.get(reaction.messageId) ??
+				new Map<string, number>();
+			reactionsByEmoji.set(
+				reaction.emoji,
+				(reactionsByEmoji.get(reaction.emoji) ?? 0) + 1
+			);
+			reactionsByMessageId.set(reaction.messageId, reactionsByEmoji);
+
+			if (reaction.userId === userId) {
+				myReactionByMessageId.set(reaction.messageId, reaction.emoji);
+			}
+		}
+
+		const replyToMessageIds = [
+			...new Set(
+				messageRows
+					.map((message) => message.replyToMessageId)
+					.filter((messageId): messageId is string => messageId !== null)
+			),
+		];
+		const replyToRows =
+			replyToMessageIds.length > 0
+				? await db
+						.select({
+							id: messages.id,
+							senderUserId: messages.senderUserId,
+							text: messages.text,
+						})
+						.from(messages)
+						.leftJoin(
+							messageDeletions,
+							and(
+								eq(messageDeletions.messageId, messages.id),
+								eq(messageDeletions.userId, userId)
+							)
+						)
+						.where(
+							and(
+								eq(messages.conversationId, access.conversation.id),
+								inArray(messages.id, replyToMessageIds),
+								isNull(messages.deletedAt),
+								isNull(messageDeletions.id)
+							)
+						)
+				: [];
+		const replyToById = new Map(replyToRows.map((row) => [row.id, row]));
 
 		const peerMember = access.members.find(
 			(member) => member.userId !== userId
@@ -148,6 +232,29 @@ export const getThread = protectedProcedure
 				conversationId: message.conversationId,
 				sender: toUserSummary(sender),
 				text: message.text,
+				replyTo: message.replyToMessageId
+					? (() => {
+							const parentMessage = replyToById.get(message.replyToMessageId);
+							if (!parentMessage) {
+								return null;
+							}
+
+							return {
+								id: parentMessage.id,
+								senderName:
+									userById.get(parentMessage.senderUserId)?.name ??
+									"Unknown user",
+								text: parentMessage.text,
+							};
+						})()
+					: null,
+				reactions: [...(reactionsByMessageId.get(message.id) ?? new Map())].map(
+					([emoji, count]) => ({
+						emoji,
+						count,
+					})
+				),
+				myReaction: myReactionByMessageId.get(message.id) ?? null,
 				createdAt: message.createdAt,
 				isOwn: message.senderUserId === userId,
 				deliveryStatus,

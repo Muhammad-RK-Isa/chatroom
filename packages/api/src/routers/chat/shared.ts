@@ -2,15 +2,16 @@ import { db } from "@chatroom/db";
 import {
 	conversationMembers,
 	conversations,
+	messageDeletions,
 	type messageReceipts,
-	type messages,
+	messages,
 	userBlocks,
 	type userPresences,
 	type users,
 } from "@chatroom/db/schema";
 import type { ChatMessageDeliveryStatus } from "@chatroom/validators";
 import { ORPCError } from "@orpc/server";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { createSortedUserPair } from "../../lib/utils";
 import { publishChatEventToUsers } from "./events";
 
@@ -101,6 +102,52 @@ export async function loadConversationAccess(
 		membership,
 		members,
 	};
+}
+
+export async function loadMessageAccess(messageId: string, userId: string) {
+	const [message] = await db
+		.select()
+		.from(messages)
+		.where(eq(messages.id, messageId));
+
+	if (!message) {
+		throw new ORPCError("NOT_FOUND", {
+			message: "Message not found",
+		});
+	}
+
+	const access = await loadConversationAccess(message.conversationId, userId);
+
+	return {
+		message,
+		access,
+	};
+}
+
+export async function isMessageVisibleToUser(
+	messageId: string,
+	userId: string
+): Promise<boolean> {
+	const [message] = await db
+		.select({ id: messages.id })
+		.from(messages)
+		.leftJoin(
+			messageDeletions,
+			and(
+				eq(messageDeletions.messageId, messages.id),
+				eq(messageDeletions.userId, userId)
+			)
+		)
+		.where(
+			and(
+				eq(messages.id, messageId),
+				isNull(messages.deletedAt),
+				isNull(messageDeletions.id)
+			)
+		)
+		.limit(1);
+
+	return Boolean(message);
 }
 
 export function getDmPeerUserId(

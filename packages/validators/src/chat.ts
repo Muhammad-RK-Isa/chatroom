@@ -14,6 +14,7 @@ export const chatMessageDeliveryStatusSchema = z.enum([
 	"delivered",
 	"seen",
 ]);
+export const chatDeleteMessageScopeSchema = z.enum(["me", "everyone"]);
 export const chatPresenceStatusSchema = z.enum(["online", "offline"]);
 
 export const chatUserSummarySchema = z.object({
@@ -65,6 +66,20 @@ export const chatMessageSchema = z.object({
 	conversationId: chatIdSchema,
 	sender: chatUserSummarySchema,
 	text: z.string().min(1),
+	replyTo: z
+		.object({
+			id: chatIdSchema,
+			senderName: z.string().min(1),
+			text: z.string().min(1),
+		})
+		.nullable(),
+	reactions: z.array(
+		z.object({
+			emoji: z.string().min(1).max(16),
+			count: z.number().int().positive(),
+		})
+	),
+	myReaction: z.string().min(1).max(16).nullable(),
 	createdAt: z.date(),
 	isOwn: z.boolean(),
 	deliveryStatus: chatMessageDeliveryStatusSchema.nullable(),
@@ -125,6 +140,7 @@ export const chatConversationInputSchema = z.object({
 export const chatSendMessageInputSchema = z.object({
 	conversationId: chatIdSchema,
 	text: z.string().trim().min(1).max(2000),
+	replyToMessageId: chatIdSchema.optional(),
 });
 
 export const chatSetTypingInputSchema = z.object({
@@ -143,6 +159,20 @@ export const chatBlockUserInputSchema = z.object({
 
 export const chatUpdatePresenceInputSchema = z.object({
 	status: chatPresenceStatusSchema,
+});
+
+export const chatSetMessageReactionInputSchema = z.object({
+	messageId: chatIdSchema,
+	emoji: z.string().trim().min(1).max(16),
+});
+
+export const chatClearMessageReactionInputSchema = z.object({
+	messageId: chatIdSchema,
+});
+
+export const chatDeleteMessageInputSchema = z.object({
+	messageId: chatIdSchema,
+	scope: chatDeleteMessageScopeSchema,
 });
 
 export const chatConversationIdOutputSchema = z.object({
