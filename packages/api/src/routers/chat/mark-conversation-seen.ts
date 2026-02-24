@@ -1,5 +1,9 @@
 import { db } from "@chatroom/db";
-import { messageReceipts, messages } from "@chatroom/db/schema";
+import {
+	messageDeletions,
+	messageReceipts,
+	messages,
+} from "@chatroom/db/schema";
 import {
 	chatConversationInputSchema,
 	chatSuccessOutputSchema,
@@ -25,10 +29,19 @@ export const markConversationSeen = protectedProcedure
 		const unseenMessageRows = await db
 			.select({ id: messages.id })
 			.from(messages)
+			.leftJoin(
+				messageDeletions,
+				and(
+					eq(messageDeletions.messageId, messages.id),
+					eq(messageDeletions.userId, userId)
+				)
+			)
 			.where(
 				and(
 					eq(messages.conversationId, access.conversation.id),
-					ne(messages.senderUserId, userId)
+					ne(messages.senderUserId, userId),
+					isNull(messages.deletedAt),
+					isNull(messageDeletions.id)
 				)
 			);
 
