@@ -1,18 +1,19 @@
-import { env } from "@chatroom/env/web";
-import type {
-	ChatSocketClientToServerEvents,
-	ChatSocketServerToClientEvents,
-	ChatStreamEvent,
-} from "@chatroom/validators";
-import { type RefObject, useEffect, useRef } from "react";
-import { io, type Socket } from "socket.io-client";
+import type { ChatStreamEvent } from "@chatroom/validators";
+import {
+	type Dispatch,
+	type MutableRefObject,
+	type SetStateAction,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { toast } from "sonner";
 import { orpc, queryClient } from "~/lib/orpc";
-import { useChatRealtimeStore } from "./chat-realtime-store";
 
 interface UseChatRealtimeOptions {
 	conversationId?: string;
 	currentUserId?: string;
+	streamEvent: ChatStreamEvent | undefined;
 	onOpenConversation: (conversationId: string) => void;
 	updatePresence: (input: { status: "online" | "offline" }) => void;
 }
@@ -22,8 +23,34 @@ const TYPING_STOP_DELAY_MS = 1000;
 const ONLINE_PRESENCE_INVALIDATION_THROTTLE_MS = 30_000;
 const DUPLICATE_EVENT_WINDOW_MS = 1500;
 
-function removeTypingUser(conversationId: string, userId: string): void {
-	useChatRealtimeStore.getState().removeTypingUser(conversationId, userId);
+function removeTypingUser(
+	conversationId: string,
+	userId: string,
+	setTypingNamesByConversationId: Dispatch<
+		SetStateAction<Record<string, Record<string, string>>>
+	>
+): void {
+	setTypingNamesByConversationId((previousState) => {
+		const currentConversationMap = previousState[conversationId];
+
+		if (!currentConversationMap?.[userId]) {
+			return previousState;
+		}
+
+		const nextConversationMap = { ...currentConversationMap };
+		delete nextConversationMap[userId];
+
+		if (Object.keys(nextConversationMap).length === 0) {
+			const nextState = { ...previousState };
+			delete nextState[conversationId];
+			return nextState;
+		}
+
+		return {
+			...previousState,
+			[conversationId]: nextConversationMap,
+		};
+	});
 }
 
 function invalidateConversationList(): void {
@@ -59,23 +86,20 @@ function getEventDedupKey(streamEvent: ChatStreamEvent): string {
 	}
 }
 
-function normalizeStreamEvent(streamEvent: ChatStreamEvent): ChatStreamEvent {
-	if (streamEvent.type !== "chat.connected") {
-		return streamEvent;
-	}
-
-	return {
-		...streamEvent,
-		at: new Date(streamEvent.at),
-	};
-}
-
 function handleTypingStreamEvent(options: {
 	streamEvent: Extract<ChatStreamEvent, { type: "chat.typing" }>;
-	currentUserId: string | undefined;
-	typingExpiryTimersRef: RefObject<Map<string, number>>;
+	currentUserId?: string;
+	typingExpiryTimersRef: MutableRefObject<Map<string, number>>;
+	setTypingNamesByConversationId: Dispatch<
+		SetStateAction<Record<string, Record<string, string>>>
+	>;
 }): void {
-	const { streamEvent, currentUserId, typingExpiryTimersRef } = options;
+	const {
+		streamEvent,
+		currentUserId,
+		typingExpiryTimersRef,
+		setTypingNamesByConversationId,
+	} = options;
 
 	if (streamEvent.userId === currentUserId) {
 		return;
@@ -89,16 +113,20 @@ function handleTypingStreamEvent(options: {
 	}
 
 	if (streamEvent.isTyping) {
-		useChatRealtimeStore
-			.getState()
-			.upsertTypingUser(
-				streamEvent.conversationId,
-				streamEvent.userId,
-				streamEvent.userName
-			);
+		setTypingNamesByConversationId((previousState) => ({
+			...previousState,
+			[streamEvent.conversationId]: {
+				...(previousState[streamEvent.conversationId] ?? {}),
+				[streamEvent.userId]: streamEvent.userName,
+			},
+		}));
 
 		const expiryTimer = window.setTimeout(() => {
-			removeTypingUser(streamEvent.conversationId, streamEvent.userId);
+			removeTypingUser(
+				streamEvent.conversationId,
+				streamEvent.userId,
+				setTypingNamesByConversationId
+			);
 			typingExpiryTimersRef.current.delete(typingTimerKey);
 		}, TYPING_EXPIRE_MS);
 
@@ -107,7 +135,11 @@ function handleTypingStreamEvent(options: {
 	}
 
 	const stopTimer = window.setTimeout(() => {
-		removeTypingUser(streamEvent.conversationId, streamEvent.userId);
+		removeTypingUser(
+			streamEvent.conversationId,
+			streamEvent.userId,
+			setTypingNamesByConversationId
+		);
 		typingExpiryTimersRef.current.delete(typingTimerKey);
 	}, TYPING_STOP_DELAY_MS);
 
@@ -116,20 +148,22 @@ function handleTypingStreamEvent(options: {
 
 function handleNonTypingStreamEvent(options: {
 	streamEvent: Exclude<ChatStreamEvent, { type: "chat.typing" }>;
-	conversationIdRef: RefObject<string | undefined>;
-	onOpenConversationRef: RefObject<(conversationId: string) => void>;
-	lastOnlinePresenceInvalidationAtRef: RefObject<number>;
-	shownToastMessageIdsRef: RefObject<Set<string>>;
+	conversationId?: string;
+	onOpenConversation: (conversationId: string) => void;
+	setTypingNamesByConversationId: Dispatch<
+		SetStateAction<Record<string, Record<string, string>>>
+	>;
+	lastOnlinePresenceInvalidationAtRef: MutableRefObject<number>;
+	shownToastMessageIdsRef: MutableRefObject<Set<string>>;
 }): void {
 	const {
 		streamEvent,
-		conversationIdRef,
-		onOpenConversationRef,
+		conversationId,
+		onOpenConversation,
+		setTypingNamesByConversationId,
 		lastOnlinePresenceInvalidationAtRef,
 		shownToastMessageIdsRef,
 	} = options;
-
-	const activeConversationId = conversationIdRef.current;
 
 	if (streamEvent.type === "chat.connected") {
 		return;
@@ -149,8 +183,8 @@ function handleNonTypingStreamEvent(options: {
 	if (streamEvent.type === "chat.presence") {
 		if (streamEvent.status === "offline") {
 			invalidateConversationList();
-			if (activeConversationId) {
-				invalidateThread(activeConversationId);
+			if (conversationId) {
+				invalidateThread(conversationId);
 			}
 			return;
 		}
@@ -167,9 +201,13 @@ function handleNonTypingStreamEvent(options: {
 	}
 
 	if (streamEvent.type === "chat.new-message") {
-		removeTypingUser(streamEvent.conversationId, streamEvent.senderUserId);
+		removeTypingUser(
+			streamEvent.conversationId,
+			streamEvent.senderUserId,
+			setTypingNamesByConversationId
+		);
 
-		if (streamEvent.conversationId === activeConversationId) {
+		if (streamEvent.conversationId === conversationId) {
 			invalidateThread(streamEvent.conversationId);
 			return;
 		}
@@ -189,7 +227,7 @@ function handleNonTypingStreamEvent(options: {
 					className="w-full cursor-pointer text-left"
 					onClick={() => {
 						toast.dismiss(id);
-						onOpenConversationRef.current(streamEvent.conversationId);
+						onOpenConversation(streamEvent.conversationId);
 					}}
 					type="button"
 				>
@@ -209,21 +247,18 @@ function handleNonTypingStreamEvent(options: {
 export function useChatRealtime({
 	conversationId,
 	currentUserId,
+	streamEvent,
 	onOpenConversation,
 	updatePresence,
 }: UseChatRealtimeOptions): {
 	typingNamesByConversationId: Record<string, Record<string, string>>;
 } {
-	const typingNamesByConversationId = useChatRealtimeStore(
-		(state) => state.typingNamesByConversationId
-	);
-	const updatePresenceRef = useRef(updatePresence);
-	const conversationIdRef = useRef(conversationId);
-	const currentUserIdRef = useRef(currentUserId);
-	const onOpenConversationRef = useRef(onOpenConversation);
+	const [typingNamesByConversationId, setTypingNamesByConversationId] =
+		useState<Record<string, Record<string, string>>>({});
 	const typingExpiryTimersRef = useRef<Map<string, number>>(new Map());
 	const lastOnlinePresenceInvalidationAtRef = useRef(0);
 	const shownToastMessageIdsRef = useRef(new Set<string>());
+	const updatePresenceRef = useRef(updatePresence);
 	const lastProcessedEventAtRef = useRef<Map<string, number>>(new Map());
 
 	useEffect(() => {
@@ -231,80 +266,38 @@ export function useChatRealtime({
 	}, [updatePresence]);
 
 	useEffect(() => {
-		conversationIdRef.current = conversationId;
-	}, [conversationId]);
+		if (!streamEvent) {
+			return;
+		}
 
-	useEffect(() => {
-		currentUserIdRef.current = currentUserId;
-	}, [currentUserId]);
+		const dedupKey = getEventDedupKey(streamEvent);
+		const now = Date.now();
+		const lastProcessedAt = lastProcessedEventAtRef.current.get(dedupKey) ?? 0;
+		if (now - lastProcessedAt < DUPLICATE_EVENT_WINDOW_MS) {
+			return;
+		}
 
-	useEffect(() => {
-		onOpenConversationRef.current = onOpenConversation;
-	}, [onOpenConversation]);
+		lastProcessedEventAtRef.current.set(dedupKey, now);
 
-	useEffect(() => {
-		useChatRealtimeStore.getState().setConnectionStatus("connecting");
-
-		const socket: Socket<
-			ChatSocketServerToClientEvents,
-			ChatSocketClientToServerEvents
-		> = io(env.VITE_SERVER_URL, {
-			path: "/socket.io/",
-			transports: ["websocket", "polling"],
-			withCredentials: true,
-		});
-
-		const handleConnect = () => {
-			useChatRealtimeStore.getState().setConnectionStatus("connected");
-		};
-
-		const handleDisconnect = () => {
-			useChatRealtimeStore.getState().setConnectionStatus("disconnected");
-		};
-
-		const handleStreamEvent = (rawEvent: ChatStreamEvent) => {
-			const streamEvent = normalizeStreamEvent(rawEvent);
-			const dedupKey = getEventDedupKey(streamEvent);
-			const now = Date.now();
-			const lastProcessedAt =
-				lastProcessedEventAtRef.current.get(dedupKey) ?? 0;
-			if (now - lastProcessedAt < DUPLICATE_EVENT_WINDOW_MS) {
-				return;
-			}
-
-			lastProcessedEventAtRef.current.set(dedupKey, now);
-
-			if (streamEvent.type === "chat.typing") {
-				handleTypingStreamEvent({
-					streamEvent,
-					currentUserId: currentUserIdRef.current,
-					typingExpiryTimersRef,
-				});
-				return;
-			}
-
-			handleNonTypingStreamEvent({
+		if (streamEvent.type === "chat.typing") {
+			handleTypingStreamEvent({
 				streamEvent,
-				conversationIdRef,
-				onOpenConversationRef,
-				lastOnlinePresenceInvalidationAtRef,
-				shownToastMessageIdsRef,
+				currentUserId,
+				typingExpiryTimersRef,
+				setTypingNamesByConversationId,
 			});
-		};
+			return;
+		}
 
-		socket.on("chat:event", handleStreamEvent);
-		socket.on("connect", handleConnect);
-		socket.on("disconnect", handleDisconnect);
-
-		return () => {
-			socket.off("chat:event", handleStreamEvent);
-			socket.off("connect", handleConnect);
-			socket.off("disconnect", handleDisconnect);
-			socket.close();
-			useChatRealtimeStore.getState().setConnectionStatus("idle");
-			useChatRealtimeStore.getState().clearTypingUsers();
-		};
-	}, []);
+		handleNonTypingStreamEvent({
+			streamEvent,
+			conversationId,
+			onOpenConversation,
+			setTypingNamesByConversationId,
+			lastOnlinePresenceInvalidationAtRef,
+			shownToastMessageIdsRef,
+		});
+	}, [conversationId, currentUserId, onOpenConversation, streamEvent]);
 
 	useEffect(() => {
 		return () => {
